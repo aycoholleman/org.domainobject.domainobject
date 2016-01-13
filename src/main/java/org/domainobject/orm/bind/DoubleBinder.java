@@ -1,4 +1,4 @@
-package org.domainobject.orm.binder;
+package org.domainobject.orm.bind;
 
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;

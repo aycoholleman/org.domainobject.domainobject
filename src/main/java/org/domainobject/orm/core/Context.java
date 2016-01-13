@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.domainobject.orm.binder.Binder;
-import org.domainobject.orm.binder.BinderRepository;
-import org.domainobject.orm.binder.StandardBinderRepository;
+import org.domainobject.orm.bind.Binder;
+import org.domainobject.orm.bind.BinderRepository;
+import org.domainobject.orm.bind.StandardBinderRepository;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.mapping.LowerCaseMappingAlgorithm;

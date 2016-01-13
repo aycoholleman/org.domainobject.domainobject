@@ -1,4 +1,4 @@
-package org.domainobject.orm.binder;
+package org.domainobject.orm.bind;
 
 import org.domainobject.orm.core.MetaDataConfigurator;
 

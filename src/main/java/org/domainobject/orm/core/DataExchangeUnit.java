@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import org.domainobject.orm.binder.Binder;
+import org.domainobject.orm.bind.Binder;
 import org.domainobject.orm.exception.BindException;
 import org.domainobject.orm.exception.DataExchangeException;
 import org.domainobject.orm.exception.DomainObjectException;

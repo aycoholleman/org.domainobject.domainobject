@@ -1,4 +1,4 @@
-package org.domainobject.orm.binder;
+package org.domainobject.orm.bind;
 
 import static java.sql.Types.BOOLEAN;
 

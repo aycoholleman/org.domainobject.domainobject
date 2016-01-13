@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.domainobject.orm.binder.Binder;
-import org.domainobject.orm.binder.BinderRepository;
+import org.domainobject.orm.bind.Binder;
+import org.domainobject.orm.bind.BinderRepository;
 import org.domainobject.orm.core.Entity.Type;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;

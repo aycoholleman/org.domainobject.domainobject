@@ -1,4 +1,4 @@
-package org.domainobject.orm.binder;
+package org.domainobject.orm.bind;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -6,26 +6,26 @@ import java.sql.ResultSet;
 import org.domainobject.orm.core.Column;
 
 /**
- * The default binder for enum values.
+ * The default binder used when no other binder seems suitable. Uses
+ * {@code ResultSet.getObject} for sending and
+ * {@code PreparedStatement.getObject} for receiving.
  */
-public final class EnumBinder implements Binder {
+public class FallBackBinder implements Binder {
 
 	public boolean isSQLNull(Object value, Column column)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return value == null;
 	}
+
 
 	public void send(Object value, Column column, PreparedStatement ps, int parameterIndex) throws Exception
 	{
-		// TODO Auto-generated method stub
-		
+		ps.setObject(parameterIndex, value);
 	}
+
 
 	public Object receive(ResultSet rs, int columnIndex) throws Exception
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return rs.getObject(columnIndex);
 	}
-
 }

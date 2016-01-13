@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.domainobject.orm.binder.Binder;
+import org.domainobject.orm.bind.Binder;
 import org.domainobject.orm.exception.DomainObjectException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.exception.UnmappedColumnException;
