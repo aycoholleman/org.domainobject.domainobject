@@ -41,14 +41,12 @@ public final class DataExchangeUnit {
 	private final Column column;
 	private final Binder binder;
 
-
-	public DataExchangeUnit(final Field field, final Column column, final Binder binder)
+	public DataExchangeUnit(Field field, Column column, Binder binder)
 	{
 		this.field = field;
 		this.column = column;
 		this.binder = binder;
 	}
-
 
 	/**
 	 * Get the field (belonging to a {@code Persistable} object) whose value is
@@ -61,7 +59,6 @@ public final class DataExchangeUnit {
 		return field;
 	}
 
-
 	/**
 	 * Get the column whose value is going to be set or read by this
 	 * {@code DataExchangeUnit}.
@@ -71,7 +68,6 @@ public final class DataExchangeUnit {
 		return column;
 	}
 
-
 	/**
 	 * Get the {@code Binder} that is going to transfer the data between the
 	 * field and the {@code ResultSet} / {@code PreparedStatement}.
@@ -80,7 +76,6 @@ public final class DataExchangeUnit {
 	{
 		return binder;
 	}
-
 
 	public boolean isFieldSQLNull(Object instance)
 	{
@@ -95,12 +90,10 @@ public final class DataExchangeUnit {
 		}
 	}
 
-
 	public boolean isValueSQLNull(Object value)
 	{
 		return binder.isSQLNull(value, column);
 	}
-
 
 	public void send(Object persistable, PreparedStatement ps, int paramIndex)
 	{
@@ -115,7 +108,6 @@ public final class DataExchangeUnit {
 		}
 	}
 
-
 	public void sendValue(Object value, PreparedStatement ps, int paramIndex)
 	{
 		try {
@@ -129,7 +121,6 @@ public final class DataExchangeUnit {
 		}
 	}
 
-
 	public void receive(Object persistable, ResultSet rs, int columnIndex)
 	{
 		try {
@@ -142,7 +133,6 @@ public final class DataExchangeUnit {
 			throw DomainObjectException.rethrow(e);
 		}
 	}
-
 
 	public Object receiveValue(ResultSet rs, int columnIndex)
 	{

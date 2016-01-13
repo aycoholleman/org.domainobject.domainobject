@@ -8,12 +8,11 @@ import java.util.Map;
 
 import org.domainobject.orm.bind.Binder;
 import org.domainobject.orm.bind.BinderRepository;
-import org.domainobject.orm.bind.StandardBinderRepository;
+import org.domainobject.orm.bind.DefaultBinderRepository;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
-import org.domainobject.orm.map.LowerCaseMappingAlgorithm;
 import org.domainobject.orm.map.IMappingAlgorithm;
-import org.domainobject.util.debug.BeanPrinter;
+import org.domainobject.orm.map.LowerCaseMappingAlgorithm;
 
 /**
  * <p>
@@ -42,7 +41,6 @@ import org.domainobject.util.debug.BeanPrinter;
 public final class Context {
 
 	private static Context defaultContext;
-
 
 	/**
 	 * Get the default metadata factory. This is the most recently instantiated
@@ -74,17 +72,16 @@ public final class Context {
 	private int dbMajorVersion;
 	private int dbMinorVersion;
 
-
 	/**
 	 * Create a metadata factory with the specified JDBC connection. A
 	 * {@link LowerCaseMappingAlgorithm} is going to be used to map fields to
 	 * columns, and binders for exchanging data between them are going to be
-	 * sourced from a share instance of {@link StandardBinderRepository}.
+	 * sourced from a share instance of {@link DefaultBinderRepository}.
 	 * 
 	 * @see IMappingAlgorithm
 	 * @see Binder
 	 * @see BinderRepository
-	 * @see StandardBinderRepository#getSharedInstance()
+	 * @see DefaultBinderRepository#getSharedInstance()
 	 * 
 	 * @param conn
 	 *            The JDBC connection
@@ -94,17 +91,16 @@ public final class Context {
 		this(conn, null, null);
 	}
 
-
 	/**
 	 * Create a metadata factory with the specified JDBC connection and mapping
 	 * algorithm. Binders for exchanging data between fields and columns are
 	 * going to be sourced from a share instance of
-	 * {@link StandardBinderRepository}
+	 * {@link DefaultBinderRepository}
 	 * 
 	 * @see IMappingAlgorithm
 	 * @see Binder
 	 * @see BinderRepository
-	 * @see StandardBinderRepository#getSharedInstance()
+	 * @see DefaultBinderRepository#getSharedInstance()
 	 * 
 	 * @param conn
 	 *            The JDBC connection
@@ -115,7 +111,6 @@ public final class Context {
 	{
 		this(conn, ma, null);
 	}
-
 
 	/**
 	 * Create a metadata factory with the specified JDBC connection and binder
@@ -131,7 +126,6 @@ public final class Context {
 	{
 		this(conn, null, br);
 	}
-
 
 	/**
 	 * Create a metadata factory with the specified JDBC connection, mapping
@@ -153,12 +147,11 @@ public final class Context {
 		this.connection = conn;
 		setDatabaseInfo();
 		this.mappingAlgorithm = ma == null ? new LowerCaseMappingAlgorithm() : ma;
-		this.binderRepository = br == null ? StandardBinderRepository.getSharedInstance() : br;
+		this.binderRepository = br == null ? DefaultBinderRepository.getSharedInstance() : br;
 		if (defaultContext == null) {
 			defaultContext = this;
 		}
 	}
-
 
 	/**
 	 * Retrieves the metadata object for the specified class from the factory's
@@ -183,7 +176,6 @@ public final class Context {
 		return metaData;
 	}
 
-
 	/**
 	 * Returns a metadata object for the specified class. If a metadata object
 	 * for this class already exists, that metadata object is returned.
@@ -198,12 +190,10 @@ public final class Context {
 	{
 		@SuppressWarnings("unchecked")
 		MetaData<T> metadata = (MetaData<T>) cache.get(forClass);
-		if (metadata != null) {
+		if (metadata != null)
 			return metadata;
-		}
 		return new MetaDataConfigurator<T>(forClass, this).createMetaData();
 	}
-
 
 	/**
 	 * Creates and returns a new {@link MetaDataConfigurator} object. A
@@ -221,7 +211,6 @@ public final class Context {
 		return new MetaDataConfigurator<T>(forClass, this);
 	}
 
-
 	/**
 	 * Get the JDBC Connection with which this {@code Context} was instantiated.
 	 * 
@@ -233,7 +222,6 @@ public final class Context {
 		return connection;
 	}
 
-
 	/**
 	 * Close this factory as well as the JDBC connection with which it was
 	 * instantiated (if any).
@@ -242,7 +230,6 @@ public final class Context {
 	{
 		close(true);
 	}
-
 
 	/**
 	 * Close this factory. This will clear the metadata object cache maintained
@@ -274,48 +261,41 @@ public final class Context {
 		}
 	}
 
-
 	public boolean isHSQL()
 	{
 		return dbVendor.equals("HSQL");
 	}
-
 
 	public boolean isMySQL()
 	{
 		return dbVendor.equals("MySQL");
 	}
 
-
 	public boolean isOracle()
 	{
 		return dbVendor.equals("Oracle");
 	}
-
 
 	public String getDatabaseVendor()
 	{
 		return dbVendor;
 	}
 
-
 	public float getDatabaseVersion()
 	{
-		return Float.parseFloat(String.valueOf(dbMajorVersion) + '.' + String.valueOf(dbMinorVersion));
+		return Float.parseFloat(String.valueOf(dbMajorVersion) + '.'
+				+ String.valueOf(dbMinorVersion));
 	}
-
 
 	public int getDatabaseMajorVersion()
 	{
 		return dbMajorVersion;
 	}
 
-
 	public int getDatabaseMinorVersion()
 	{
 		return dbMinorVersion;
 	}
-
 
 	private void setDatabaseInfo()
 	{

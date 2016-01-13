@@ -6,30 +6,25 @@ import org.domainobject.orm.core.MetaDataConfigurator;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 
 /**
- * The default binder repository used by domainobject when assembling metadata
- * objects.
+ * The default binder repository when assembling metadata objects.
  * 
- * @see BinderRepository
- * @see MetaData
- * @see MetaDataConfigurator
+ * @see MetaDataConfigurator#setBinderRepository(BinderRepository)
  */
-public class StandardBinderRepository implements BinderRepository {
+public class DefaultBinderRepository implements BinderRepository {
 
-	private static StandardBinderRepository sharedInstance;
+	private static DefaultBinderRepository sharedInstance;
 
-
-	public static StandardBinderRepository getSharedInstance()
+	public static DefaultBinderRepository getSharedInstance()
 	{
 		if (sharedInstance == null) {
-			sharedInstance = new StandardBinderRepository();
+			sharedInstance = new DefaultBinderRepository();
 		}
 		return sharedInstance;
 	}
 
 	private final HashMap<Class<?>, Binder> binders = new HashMap<Class<?>, Binder>();
 
-
-	public StandardBinderRepository()
+	public DefaultBinderRepository()
 	{
 
 		binders.put(String.class, new StringBinder());
@@ -50,7 +45,6 @@ public class StandardBinderRepository implements BinderRepository {
 
 	}
 
-
 	public Binder getBinder(Class<?> forClass)
 	{
 		for (Class<?> c = forClass; c != null; c = c.getSuperclass()) {
@@ -59,9 +53,9 @@ public class StandardBinderRepository implements BinderRepository {
 				return binder;
 			}
 		}
-		throw new MetaDataAssemblyException("No suitable Binder found for class " + forClass.getName());
+		throw new MetaDataAssemblyException("No suitable Binder found for class "
+				+ forClass.getName());
 	}
-
 
 	public void addBinder(Class<?> forClass, Binder binder)
 	{

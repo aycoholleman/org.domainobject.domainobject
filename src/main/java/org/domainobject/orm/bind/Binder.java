@@ -17,7 +17,7 @@ import org.domainobject.orm.core.MetaDataConfigurator;
  * when that object's metadata object is assembled (See
  * {@link MetaDataConfigurator#setBinder(Class, Binder)}). You can influence
  * this process in various ways. By default binders are sourced from the
- * {@link StandardBinderRepository}.
+ * {@link DefaultBinderRepository}.
  * </p>
  * <p>
  * In general, binders are there for the following reasons:

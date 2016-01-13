@@ -49,12 +49,11 @@ import org.domainobject.orm.map.IMappingAlgorithm;
 public final class MetaDataConfigurator<T> {
 
 	private static final String ERR_ALREADY_CREATED = "You cannot change a MetaDataConfigurator after you have called its createMetaData method";
-	private static final String ERR_ENTITY_ALREADY_SET = "You must either provide a complete Entity instance, or specify one through its name, schema and type";
 
 	private final Context context;
 	private final Class<T> forClass;
+	private final Connection connection;
 
-	private Connection connection;
 	private BinderRepository binderRepository;
 	private IMappingAlgorithm mappingAlgorithm;
 
@@ -63,12 +62,10 @@ public final class MetaDataConfigurator<T> {
 	private String entitySchema;
 	private Type entityType;
 
-	private Map<String, String> mappings;
 	private Map<String, Binder> fieldBinders;
 	private Map<Class<?>, Binder> classBinders;
 
 	private boolean invalid;
-
 
 	MetaDataConfigurator(Class<T> forClass, Context context)
 	{
@@ -78,7 +75,6 @@ public final class MetaDataConfigurator<T> {
 		this.binderRepository = context.binderRepository;
 		this.mappingAlgorithm = context.mappingAlgorithm;
 	}
-
 
 	/**
 	 * Create a metadata object for the persistent class for which this
@@ -100,81 +96,18 @@ public final class MetaDataConfigurator<T> {
 			throw new IllegalAccessError(ERR_ALREADY_CREATED);
 		}
 		invalid = true;
-		if (connection == null) {
-			throw new MetaDataAssemblyException("Cannot create metadata object without a JDBC connection");
-		}
 		if (entity == null) {
 			entity = createEntity();
 		}
-		MetaData<T> metadata = new MetaData<T>(forClass, entity, getDataExchangeUnits(), context, this);
+		MetaData<T> metadata = new MetaData<T>(forClass, entity, getDataExchangeUnits(), context,
+				this);
 		context.cache.put(forClass, metadata);
 		return metadata;
 	}
 
-
 	/**
-	 * Set the JDBC connection to be used by the persistency operations.
-	 * 
-	 * @param connection
-	 *            The JDBC connection
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setConnection(Connection connection)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		this.connection = connection;
-		return this;
-	}
-
-
-	/**
-	 * Set the {@code Entity} representing the table, view or nested query that
-	 * the persistent class maps to.
-	 * 
-	 * @param entity
-	 *            The {@code Entity} representing the table
-	 * 
-	 * @return This metadata configurator instance
-	 * 
-	 * @see NestedQueryEntity
-	 */
-	public MetaDataConfigurator<T> setEntity(Entity entity)
-	{
-		if (entityName != null || entitySchema != null || entityType != null) {
-			throw new MetaDataAssemblyException(ERR_ENTITY_ALREADY_SET);
-		}
-		this.entity = entity;
-		return this;
-	}
-
-
-	/**
-	 * Set the name of the entity that representing the table, view or nested
-	 * query that the persistent class maps to.
-	 * 
-	 * @param name
-	 *            The name of the entity
-	 * 
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setEntityName(String name)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (entity != null) {
-			throw new MetaDataAssemblyException(ERR_ENTITY_ALREADY_SET);
-		}
-		this.entityName = name;
-		return this;
-	}
-
-
-	/**
-	 * Set the database schema of the entity representing the table, view or
-	 * nested query that the persistent class maps to.
+	 * Set the database schema that the table or view belongs to. By default
+	 * this is inferred from {@link Connection#getCatalog()}.
 	 * 
 	 * @param schema
 	 *            The database schema
@@ -183,41 +116,9 @@ public final class MetaDataConfigurator<T> {
 	 */
 	public MetaDataConfigurator<T> setEntitySchema(String schema)
 	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (entity != null) {
-			throw new MetaDataAssemblyException(ERR_ENTITY_ALREADY_SET);
-		}
 		this.entitySchema = schema;
 		return this;
 	}
-
-
-	/**
-	 * Set the type of the entity that the persistent class maps to (table, view
-	 * or nested query).
-	 * 
-	 * @param type
-	 *            The type of the entity
-	 * 
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setEntityType(Entity.Type type)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (entity != null) {
-			throw new MetaDataAssemblyException(ERR_ENTITY_ALREADY_SET);
-		}
-		if(type == Entity.Type.NESTED_QUERY) {
-			throw new MetaDataAssemblyException("");
-		}
-		this.entityType = type;
-		return this;
-	}
-
 
 	/**
 	 * Set the mapping algorithm to use when mapping fields to columns.
@@ -229,13 +130,9 @@ public final class MetaDataConfigurator<T> {
 	 */
 	public MetaDataConfigurator<T> setMappingAlgorithm(IMappingAlgorithm mappingAlgorithm)
 	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
 		this.mappingAlgorithm = mappingAlgorithm;
 		return this;
 	}
-
 
 	/**
 	 * Set the binder repository when assigning {@code Binder}s to fields.
@@ -247,71 +144,35 @@ public final class MetaDataConfigurator<T> {
 	 */
 	public MetaDataConfigurator<T> setBinderRepository(BinderRepository binderRepository)
 	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
 		this.binderRepository = binderRepository;
 		return this;
 	}
 
-
 	/**
-	 * Specify a custom field-to-column mapping. This method can be used if you
-	 * have one or more erratic mappings that cannot be captured by your chosen
-	 * mapping algorithm. Custom mappings take precedence over mappings
-	 * calculated by a mapping algortihm.
+	 * Sets the {@link Binder} to be used for all fields of the the specified
+	 * type. The binder specified here takes precedence over the binder
+	 * specified by the {@link BinderRepository}.
 	 * 
-	 * @param field
-	 *            The name of a field (belonging to the class described by the
-	 *            metadata object)
-	 * @param column
-	 *            The name of the column that the field maps to
+	 * @param type
+	 *            The class to attach the binder to
+	 * @param binder
+	 *            The binder
 	 * 
 	 * @return This metadata configurator instance
 	 */
-	public MetaDataConfigurator<T> setCustomMapping(String field, String column)
+	public MetaDataConfigurator<T> setBinder(Class<?> type, Binder binder)
 	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
+		if (classBinders == null) {
+			classBinders = new HashMap<Class<?>, Binder>();
 		}
-		if (mappings == null) {
-			mappings = new HashMap<String, String>();
-		}
-		mappings.put(field, column);
+		classBinders.put(type, binder);
 		return this;
 	}
 
-
 	/**
-	 * Set multiple field-to-column mappings. This method can be used if you
-	 * have several erratic mappings that cannot be captured by your chosen
-	 * mapping algorithm. Custom mappings take precedence over mappings
-	 * calculated by a mapping algortihm.
-	 * 
-	 * @param mappings
-	 *            A map with field names as keys and column names as values
-	 * 
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setCustomMappings(Map<String, String> mappings)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (this.mappings == null) {
-			this.mappings = mappings;
-		}
-		else {
-			this.mappings.putAll(mappings);
-		}
-		return this;
-	}
-
-
-	/**
-	 * Specify the {@link Binder} to be used for the specified field. This way
-	 * of setting a binder takes precedence over all other ways of specifying
-	 * {@code Binder}s.
+	 * Sets the {@link Binder} to be used for the specified field. The binder
+	 * specfied here takes precedence over binders specified using
+	 * {@link #setBinder(Class, Binder)}.
 	 * 
 	 * @param field
 	 *            The field to which to assign the {@code Binder}.
@@ -320,100 +181,19 @@ public final class MetaDataConfigurator<T> {
 	 * 
 	 * @return This metadata configurator instance
 	 */
-	public MetaDataConfigurator<T> setFieldBinder(String field, Binder binder)
+	public MetaDataConfigurator<T> setBinder(String field, Binder binder)
 	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (fieldBinders == null) {
+		if (fieldBinders == null)
 			fieldBinders = new HashMap<String, Binder>();
-		}
 		fieldBinders.put(field, binder);
 		return this;
 	}
 
-
-	/**
-	 * Provide {@link Binder}s for multiple fields. This way of setting a binder
-	 * takes precedence over all other ways of specifying {@code Binder}s.
-	 * 
-	 * @param fieldBinders
-	 *            A map with field names as keys and {@code Binder} objects as
-	 *            values.
-	 * 
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setFieldBinders(Map<String, Binder> fieldBinders)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (this.fieldBinders == null) {
-			this.fieldBinders = fieldBinders;
-		}
-		else {
-			this.fieldBinders.putAll(fieldBinders);
-		}
-		return this;
-	}
-
-
-	/**
-	 * Specify the {@link Binder} to be used for the specified class. All fields
-	 * with the specified class will be assigned that {@code Binder}.
-	 * {@code Binder}s specified this way take precedence over binders retrieved
-	 * from a {@link BinderRepository}.
-	 * 
-	 * @param forClass
-	 *            The class to attach the binder to
-	 * @param binder
-	 *            The binder
-	 * 
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setBinder(Class<?> forClass, Binder binder)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (classBinders == null) {
-			classBinders = new HashMap<Class<?>, Binder>();
-		}
-		classBinders.put(forClass, binder);
-		return this;
-	}
-
-
-	/**
-	 * Set the {@link Binder}s to be used for a set of classes. {@code Binder}s
-	 * specified this way take precedence over binders retrieved from a
-	 * {@link BinderRepository}.
-	 * 
-	 * @param classBinders
-	 *            A map with class objects as keys and binder objects as values
-	 * 
-	 * @return This metadata configurator instance
-	 */
-	public MetaDataConfigurator<T> setBinders(Map<Class<?>, Binder> classBinders)
-	{
-		if (invalid) {
-			throw new IllegalAccessError(ERR_ALREADY_CREATED);
-		}
-		if (this.classBinders == null) {
-			this.classBinders = classBinders;
-		}
-		else {
-			this.classBinders.putAll(classBinders);
-		}
-		return this;
-	}
-
-
 	DataExchangeUnit getDataExchangeUnit(Column column)
 	{
 		for (Field f : getAllFields(forClass)) {
-			String columnName = getColumnName(f);
-			if (columnName != null && columnName.equals(column)) {
+			String colName = mappingAlgorithm.mapFieldToColumnName(f, forClass);
+			if (colName != null && colName.equals(column)) {
 				if (!f.isAccessible()) {
 					f.setAccessible(true);
 				}
@@ -422,7 +202,6 @@ public final class MetaDataConfigurator<T> {
 		}
 		return null;
 	}
-
 
 	private Entity createEntity()
 	{
@@ -451,11 +230,11 @@ public final class MetaDataConfigurator<T> {
 		return new ViewEntity(entityName, entitySchema, connection);
 	}
 
-
 	private DataExchangeUnit[] getDataExchangeUnits()
 	{
 		Column[] columns = entity.getColumns();
-		HashMap<String, Column> columnIndex = new HashMap<String, Column>((int) (columns.length / .75) + 1);
+		HashMap<String, Column> columnIndex = new HashMap<String, Column>(
+				(int) (columns.length / .75) + 1);
 		for (Column column : columns) {
 			columnIndex.put(column.getName(), column);
 		}
@@ -463,7 +242,7 @@ public final class MetaDataConfigurator<T> {
 		ArrayList<DataExchangeUnit> list = new ArrayList<DataExchangeUnit>(columns.length);
 
 		for (Field f : getAllFields(forClass)) {
-			String columnName = getColumnName(f);
+			String columnName = mappingAlgorithm.mapFieldToColumnName(f, forClass);
 			if (columnName != null && columnIndex.containsKey(columnName)) {
 				if (!f.isAccessible()) {
 					f.setAccessible(true);
@@ -482,19 +261,10 @@ public final class MetaDataConfigurator<T> {
 		return result;
 	}
 
-
-	private String getColumnName(Field forField)
-	{
-		String name = forField.getName();
-		if (mappings != null && mappings.containsKey(name)) {
-			return mappings.get(name);
-		}
-		if (mappingAlgorithm != null) {
-			return mappingAlgorithm.mapFieldToColumnName(forField, forClass);
-		}
-		return null;
-	}
-
+	// private String getColumnName(Field forField)
+	// {
+	// return mappingAlgorithm.mapFieldToColumnName(forField, forClass);
+	// }
 
 	private Binder getBinder(Field field)
 	{
@@ -509,9 +279,9 @@ public final class MetaDataConfigurator<T> {
 		if (binderRepository != null) {
 			return binderRepository.getBinder(fieldType);
 		}
-		throw new MetaDataAssemblyException("Cannot assign a Binders without BinderRepository and custom Binders");
+		throw new MetaDataAssemblyException(
+				"Cannot assign a Binders without BinderRepository and custom Binders");
 	}
-
 
 	private static List<Field> getAllFields(Class<?> forClass)
 	{
