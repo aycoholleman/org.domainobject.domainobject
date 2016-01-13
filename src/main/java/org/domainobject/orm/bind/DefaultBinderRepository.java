@@ -21,7 +21,7 @@ public class DefaultBinderRepository implements IBinderRepository {
 		return instance;
 	}
 
-	private final HashMap<Class<?>, Binder> binders;
+	private final HashMap<Class<?>, IBinder> binders;
 
 	private boolean checkSuperClasses = true;
 
@@ -29,7 +29,7 @@ public class DefaultBinderRepository implements IBinderRepository {
 	{
 		binders = new HashMap<>();
 		binders.put(String.class, new StringBinder());
-		Binder stringyBinder = new StringyBinder();
+		IBinder stringyBinder = new StringyBinder();
 		binders.put(char.class, stringyBinder);
 		binders.put(Character.class, stringyBinder);
 		binders.put(StringBuilder.class, stringyBinder);
@@ -42,18 +42,18 @@ public class DefaultBinderRepository implements IBinderRepository {
 		binders.put(Long.class, longBinder);
 	}
 
-	public void setBinder(Class<?> forClass, Binder binder)
+	public void setBinder(Class<?> forClass, IBinder binder)
 	{
 		binders.put(forClass, binder);
 	}
 
 	@Override
-	public Binder getBinder(Class<?> forClass)
+	public IBinder getBinder(Class<?> forClass)
 	{
 		if (!checkSuperClasses)
 			return binders.get(forClass);
 		while (forClass != null) {
-			Binder binder = binders.get(forClass);
+			IBinder binder = binders.get(forClass);
 			if (binder != null)
 				return binder;
 			forClass = forClass.getSuperclass();

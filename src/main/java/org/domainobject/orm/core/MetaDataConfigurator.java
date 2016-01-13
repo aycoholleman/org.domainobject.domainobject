@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.domainobject.orm.bind.Binder;
+import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.bind.DefaultBinderRepository;
 import org.domainobject.orm.bind.IBinderRepository;
 import org.domainobject.orm.core.Entity.Type;
@@ -64,8 +64,8 @@ public final class MetaDataConfigurator<T> {
 	private String entitySchema;
 	private Type entityType;
 
-	private Map<String, Binder> fieldBinders;
-	private Map<Class<?>, Binder> classBinders;
+	private Map<String, IBinder> fieldBinders;
+	private Map<Class<?>, IBinder> classBinders;
 
 	private boolean invalid;
 
@@ -150,7 +150,7 @@ public final class MetaDataConfigurator<T> {
 	}
 
 	/**
-	 * Sets the {@link Binder} to be used for all fields of the the specified
+	 * Sets the {@link IBinder} to be used for all fields of the the specified
 	 * type. The binder specified here takes precedence over the binder
 	 * specified by the {@link IBinderRepository}.
 	 * 
@@ -161,7 +161,7 @@ public final class MetaDataConfigurator<T> {
 	 * 
 	 * @return This metadata configurator instance
 	 */
-	public MetaDataConfigurator<T> setBinder(Class<?> type, Binder binder)
+	public MetaDataConfigurator<T> setBinder(Class<?> type, IBinder binder)
 	{
 		if (classBinders == null) {
 			classBinders = new HashMap<>();
@@ -171,9 +171,9 @@ public final class MetaDataConfigurator<T> {
 	}
 
 	/**
-	 * Sets the {@link Binder} to be used for the specified field. The binder
+	 * Sets the {@link IBinder} to be used for the specified field. The binder
 	 * specfied here takes precedence over binders specified using
-	 * {@link #setBinder(Class, Binder)}.
+	 * {@link #setBinder(Class, IBinder)}.
 	 * 
 	 * @param field
 	 *            The field to which to assign the {@code Binder}.
@@ -182,7 +182,7 @@ public final class MetaDataConfigurator<T> {
 	 * 
 	 * @return This metadata configurator instance
 	 */
-	public MetaDataConfigurator<T> setBinder(String field, Binder binder)
+	public MetaDataConfigurator<T> setBinder(String field, IBinder binder)
 	{
 		if (fieldBinders == null)
 			fieldBinders = new HashMap<>();
@@ -260,7 +260,7 @@ public final class MetaDataConfigurator<T> {
 		return result;
 	}
 
-	private Binder getBinder(Field field)
+	private IBinder getBinder(Field field)
 	{
 		String name = field.getName();
 		if (fieldBinders != null && fieldBinders.containsKey(name)) {
@@ -273,7 +273,7 @@ public final class MetaDataConfigurator<T> {
 		if (binderRepository == null) {
 			binderRepository = DefaultBinderRepository.getSharedInstance();
 		}
-		Binder binder = binderRepository.getBinder(type);
+		IBinder binder = binderRepository.getBinder(type);
 		if (binder == null)
 			throw new MissingBinderException(field);
 		return binder;

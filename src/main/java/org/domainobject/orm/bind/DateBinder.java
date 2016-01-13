@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import org.domainobject.orm.core.Column;
 
-public final class DateBinder implements Binder {
+public final class DateBinder implements IBinder {
 
 	public boolean isSQLNull(Object value, Column column)
 	{

@@ -13,7 +13,7 @@ import org.domainobject.orm.core.Column;
  * </ul>
  * Otherwise the value is regarded as not SQL NULL.
  */
-public abstract class NumberBinder implements Binder {
+public abstract class NumberBinder implements IBinder {
 
 	public boolean isSQLNull(Object value, Column column)
 	{

@@ -10,7 +10,7 @@ import org.domainobject.orm.core.Column;
  * {@code ResultSet.getObject} for sending and
  * {@code PreparedStatement.getObject} for receiving.
  */
-public class FallBackBinder implements Binder {
+public class FallBackBinder implements IBinder {
 
 	public boolean isSQLNull(Object value, Column column)
 	{

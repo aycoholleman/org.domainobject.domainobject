@@ -8,7 +8,7 @@ import org.domainobject.orm.core.Column;
 /**
  * The default binder for enum values.
  */
-public final class EnumBinder implements Binder {
+public final class EnumBinder implements IBinder {
 
 	public boolean isSQLNull(Object value, Column column)
 	{

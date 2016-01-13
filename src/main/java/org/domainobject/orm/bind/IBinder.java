@@ -15,7 +15,7 @@ import org.domainobject.orm.core.MetaDataConfigurator;
  * copy data to or from the object, but it may also may also transform the data.
  * The binder to be used for each of an object's persistent fields is determined
  * when that object's metadata object is assembled (See
- * {@link MetaDataConfigurator#setBinder(Class, Binder)}). You can influence
+ * {@link MetaDataConfigurator#setBinder(Class, IBinder)}). You can influence
  * this process in various ways. By default binders are sourced from the
  * {@link DefaultBinderRepository}.
  * </p>
@@ -42,7 +42,7 @@ import org.domainobject.orm.core.MetaDataConfigurator;
  * </ol>
  * </p>
  */
-public interface Binder {
+public interface IBinder {
 
 	/**
 	 * Whether or not the specified value must be regarded as an SQL NULL value.

@@ -20,7 +20,7 @@ import org.domainobject.orm.core.MetaData;
  * using the purpose-built {@link StringBinder} though.
  * 
  */
-public class StringyBinder implements Binder {
+public class StringyBinder implements IBinder {
 
 	/**
 	 * Extract the {@code String} from the stringy object. If it cannot simply

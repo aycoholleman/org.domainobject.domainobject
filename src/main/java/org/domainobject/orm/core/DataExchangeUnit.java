@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import org.domainobject.orm.bind.Binder;
+import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.exception.BindException;
 import org.domainobject.orm.exception.DataExchangeException;
 import org.domainobject.orm.exception.DomainObjectException;
@@ -33,15 +33,15 @@ import org.domainobject.orm.persister.StandardPersister;
  * 
  * @see MetaData
  * @see Column
- * @see Binder
+ * @see IBinder
  */
 public final class DataExchangeUnit {
 
 	private final Field field;
 	private final Column column;
-	private final Binder binder;
+	private final IBinder binder;
 
-	public DataExchangeUnit(Field field, Column column, Binder binder)
+	public DataExchangeUnit(Field field, Column column, IBinder binder)
 	{
 		this.field = field;
 		this.column = column;
@@ -72,7 +72,7 @@ public final class DataExchangeUnit {
 	 * Get the {@code Binder} that is going to transfer the data between the
 	 * field and the {@code ResultSet} / {@code PreparedStatement}.
 	 */
-	public Binder getBinder()
+	public IBinder getBinder()
 	{
 		return binder;
 	}

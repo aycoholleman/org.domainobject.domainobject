@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.domainobject.orm.bind.Binder;
+import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.bind.DefaultBinderRepository;
 import org.domainobject.orm.bind.IBinderRepository;
 import org.domainobject.orm.exception.DomainObjectSQLException;
@@ -78,7 +78,7 @@ public final class Context {
 	 * sourced from a share instance of {@link DefaultBinderRepository}.
 	 * 
 	 * @see IMappingAlgorithm
-	 * @see Binder
+	 * @see IBinder
 	 * @see IBinderRepository
 	 * @see DefaultBinderRepository#getSharedInstance()
 	 * 
@@ -97,7 +97,7 @@ public final class Context {
 	 * {@link DefaultBinderRepository}
 	 * 
 	 * @see IMappingAlgorithm
-	 * @see Binder
+	 * @see IBinder
 	 * @see IBinderRepository
 	 * @see DefaultBinderRepository#getSharedInstance()
 	 * 
@@ -116,7 +116,7 @@ public final class Context {
 	 * algorithm and binder repository.
 	 * 
 	 * @see IMappingAlgorithm
-	 * @see Binder
+	 * @see IBinder
 	 * @see IBinderRepository
 	 * 
 	 * @param conn

@@ -5,14 +5,14 @@ import org.domainobject.orm.core.MetaDataConfigurator;
 
 /**
  * 
- * A {@code BinderRepository} functions as an initial set of {@link Binder}s to
+ * A {@code BinderRepository} functions as an initial set of {@link IBinder}s to
  * choose from when assembling a {@link MetaData metadata object}.
  * 
- * @see Binder
+ * @see IBinder
  * @see MetaDataConfigurator#setBinderRepository(BinderRepository)
  */
 public interface IBinderRepository {
 
-	Binder getBinder(Class<?> forClass);
+	IBinder getBinder(Class<?> forClass);
 
 }

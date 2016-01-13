@@ -12,7 +12,7 @@ import org.domainobject.util.StringUtil;
 /**
  * The default binder for String values.
  */
-public class StringBinder implements Binder {
+public class StringBinder implements IBinder {
 
 	static final String EMPTY_STRING = "";
 

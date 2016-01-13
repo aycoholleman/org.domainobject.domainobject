@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.domainobject.orm.bind.Binder;
+import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.exception.DomainObjectException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.exception.UnmappedColumnException;
@@ -75,7 +75,7 @@ import org.domainobject.util.convert.Stringifier;
  * You can even have valid reasons to use multiple metadata object for one and
  * the same table. If you want to populate the table from two sources, one of
  * which requires some pretty heavy-weight data transformations, you could
- * create a metadata object with purpose-built {@link Binder}s for that source,
+ * create a metadata object with purpose-built {@link IBinder}s for that source,
  * while using a regular metadata object for the other.</li>
  * </ol>
  * <p>
