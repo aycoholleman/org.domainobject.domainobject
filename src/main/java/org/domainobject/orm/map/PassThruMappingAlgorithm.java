@@ -6,9 +6,9 @@ package org.domainobject.orm.map;
  * @author Ayco Holleman
  *
  */
-public class NoOpMappingAlgorithm extends AbstractMappingAlgorithm {
+public class PassThruMappingAlgorithm extends AbstractMappingAlgorithm {
 
-	public NoOpMappingAlgorithm()
+	public PassThruMappingAlgorithm()
 	{
 		super();
 	}

@@ -11,13 +11,13 @@ import org.domainobject.orm.core.Column;
 import org.domainobject.orm.core.MetaData;
 
 /**
- * The StringishBinder can be used for all "stringish" fields in a
- * {@link Object} object. In other words, it can be used for all fields that
- * should be bound using {@link ResultSet#getString(int)} and
- * {@link PreparedStatement#setString(int, String)}. For example char, char[],
- * and StringBuilder fields can all be bound using the StringishBinder.
- * {@code String}s should be bound using the purpose-built {@link StringBinder}
- * though.
+ * The StringishBinder can be used for all "stringish" fields in a persistent
+ * object. In other words, it can be used for all values that should be
+ * retrieved using {@link ResultSet#getString(int) ResultSet.getString} and
+ * bound using {@link PreparedStatement#setString(int, String)
+ * PreparedStatement.setString}. For example char, char[], and StringBuilder
+ * fields can all be bound using this binder. {@code String}s should be bound
+ * using the purpose-built {@link StringBinder} though.
  * 
  */
 public class StringyBinder implements Binder {
@@ -36,8 +36,8 @@ public class StringyBinder implements Binder {
 		return value.toString();
 	}
 
-
-	public boolean isFieldNull(Object instance, MetaData metadata, Field field) throws IllegalAccessException
+	public boolean isFieldNull(Object instance, MetaData metadata, Field field)
+			throws IllegalAccessException
 	{
 		Column column = metadata.getDataExchangeUnit(field).getColumn();
 		String value = getValueAsString(field.get(instance));
@@ -47,8 +47,8 @@ public class StringyBinder implements Binder {
 		return false;
 	}
 
-
-	public void send(Object instance, MetaData metadata, Field field, PreparedStatement ps, int parameterIndex) throws SQLException, IllegalAccessException
+	public void send(Object instance, MetaData metadata, Field field, PreparedStatement ps,
+			int parameterIndex) throws SQLException, IllegalAccessException
 	{
 		Column column = metadata.getDataExchangeUnit(field).getColumn();
 		String value = getValueAsString(field.get(instance));
@@ -66,8 +66,8 @@ public class StringyBinder implements Binder {
 		}
 	}
 
-
-	public void receive(Object instance, MetaData metadata, Field field, ResultSet rs, int columnIndex) throws SQLException, IllegalAccessException
+	public void receive(Object instance, MetaData metadata, Field field, ResultSet rs,
+			int columnIndex) throws SQLException, IllegalAccessException
 	{
 		Column column = metadata.getDataExchangeUnit(field).getColumn();
 		if (column.getDataType() == BOOLEAN) {
@@ -84,7 +84,6 @@ public class StringyBinder implements Binder {
 		}
 	}
 
-
 	/**
 	 * This implementation regards a String value as SQL NULL if it is null, or
 	 * if it is as empty String <i>and</a> the column it is coming from or going
@@ -98,8 +97,8 @@ public class StringyBinder implements Binder {
 		return false;
 	}
 
-
-	public void send(Object value, Column column, PreparedStatement ps, int parameterIndex) throws Exception
+	public void send(Object value, Column column, PreparedStatement ps, int parameterIndex)
+			throws Exception
 	{
 		if (value == null) {
 			if (column.isNullable()) {
@@ -122,7 +121,6 @@ public class StringyBinder implements Binder {
 			}
 		}
 	}
-
 
 	public Object receive(ResultSet rs, int columnIndex) throws Exception
 	{
