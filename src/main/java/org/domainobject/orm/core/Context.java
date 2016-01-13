@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.domainobject.orm.bind.Binder;
-import org.domainobject.orm.bind.BinderRepository;
 import org.domainobject.orm.bind.DefaultBinderRepository;
+import org.domainobject.orm.bind.IBinderRepository;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.map.IMappingAlgorithm;
@@ -62,11 +62,10 @@ public final class Context {
 		return defaultContext;
 	}
 
-	final Map<Class<?>, MetaData<?>> cache = new HashMap<Class<?>, MetaData<?>>();
+	final Map<Class<?>, MetaData<?>> metadataCache = new HashMap<>();
 
 	final Connection connection;
 	final IMappingAlgorithm mappingAlgorithm;
-	final BinderRepository binderRepository;
 
 	private String dbVendor;
 	private int dbMajorVersion;
@@ -80,7 +79,7 @@ public final class Context {
 	 * 
 	 * @see IMappingAlgorithm
 	 * @see Binder
-	 * @see BinderRepository
+	 * @see IBinderRepository
 	 * @see DefaultBinderRepository#getSharedInstance()
 	 * 
 	 * @param conn
@@ -99,7 +98,7 @@ public final class Context {
 	 * 
 	 * @see IMappingAlgorithm
 	 * @see Binder
-	 * @see BinderRepository
+	 * @see IBinderRepository
 	 * @see DefaultBinderRepository#getSharedInstance()
 	 * 
 	 * @param conn
@@ -113,27 +112,12 @@ public final class Context {
 	}
 
 	/**
-	 * Create a metadata factory with the specified JDBC connection and binder
-	 * repository. A {@link LowerCaseMappingAlgorithm} is going to be used to
-	 * map fields to columns.
-	 * 
-	 * @param conn
-	 *            The JDBC connection
-	 * @param br
-	 *            The binding repository
-	 */
-	public Context(Connection conn, BinderRepository br)
-	{
-		this(conn, null, br);
-	}
-
-	/**
 	 * Create a metadata factory with the specified JDBC connection, mapping
 	 * algorithm and binder repository.
 	 * 
 	 * @see IMappingAlgorithm
 	 * @see Binder
-	 * @see BinderRepository
+	 * @see IBinderRepository
 	 * 
 	 * @param conn
 	 *            The JDBC connection
@@ -142,12 +126,11 @@ public final class Context {
 	 * @param br
 	 *            The binder repository
 	 */
-	public Context(Connection conn, IMappingAlgorithm ma, BinderRepository br)
+	public Context(Connection conn, IMappingAlgorithm ma, IBinderRepository br)
 	{
 		this.connection = conn;
 		setDatabaseInfo();
 		this.mappingAlgorithm = ma == null ? new LowerCaseMappingAlgorithm() : ma;
-		this.binderRepository = br == null ? DefaultBinderRepository.getSharedInstance() : br;
 		if (defaultContext == null) {
 			defaultContext = this;
 		}
@@ -172,7 +155,7 @@ public final class Context {
 	public <T> MetaData<T> findMetaData(Class<T> forClass)
 	{
 		@SuppressWarnings("unchecked")
-		MetaData<T> metaData = (MetaData<T>) cache.get(forClass);
+		MetaData<T> metaData = (MetaData<T>) metadataCache.get(forClass);
 		return metaData;
 	}
 
@@ -189,10 +172,10 @@ public final class Context {
 	public <T> MetaData<T> createMetaData(Class<T> forClass)
 	{
 		@SuppressWarnings("unchecked")
-		MetaData<T> metadata = (MetaData<T>) cache.get(forClass);
+		MetaData<T> metadata = (MetaData<T>) metadataCache.get(forClass);
 		if (metadata != null)
 			return metadata;
-		return new MetaDataConfigurator<T>(forClass, this).createMetaData();
+		return new MetaDataConfigurator<>(forClass, this).createMetaData();
 	}
 
 	/**
@@ -208,7 +191,7 @@ public final class Context {
 	 */
 	public <T> MetaDataConfigurator<T> getConfigurator(Class<T> forClass)
 	{
-		return new MetaDataConfigurator<T>(forClass, this);
+		return new MetaDataConfigurator<>(forClass, this);
 	}
 
 	/**
@@ -249,7 +232,7 @@ public final class Context {
 	 */
 	public void close(boolean closeConnection)
 	{
-		cache.clear();
+		metadataCache.clear();
 		Query.clearCache(this);
 		if (closeConnection && connection != null) {
 			try {

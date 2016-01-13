@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.domainobject.orm.bind.Binder;
-import org.domainobject.orm.bind.BinderRepository;
+import org.domainobject.orm.bind.DefaultBinderRepository;
+import org.domainobject.orm.bind.IBinderRepository;
 import org.domainobject.orm.core.Entity.Type;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
+import org.domainobject.orm.exception.MissingBinderException;
 import org.domainobject.orm.map.IMappingAlgorithm;
 
 /**
@@ -54,7 +56,7 @@ public final class MetaDataConfigurator<T> {
 	private final Class<T> forClass;
 	private final Connection connection;
 
-	private BinderRepository binderRepository;
+	private IBinderRepository binderRepository;
 	private IMappingAlgorithm mappingAlgorithm;
 
 	private Entity entity;
@@ -72,7 +74,6 @@ public final class MetaDataConfigurator<T> {
 		this.context = context;
 		this.forClass = forClass;
 		this.connection = context.connection;
-		this.binderRepository = context.binderRepository;
 		this.mappingAlgorithm = context.mappingAlgorithm;
 	}
 
@@ -99,9 +100,9 @@ public final class MetaDataConfigurator<T> {
 		if (entity == null) {
 			entity = createEntity();
 		}
-		MetaData<T> metadata = new MetaData<T>(forClass, entity, getDataExchangeUnits(), context,
+		MetaData<T> metadata = new MetaData<>(forClass, entity, getDataExchangeUnits(), context,
 				this);
-		context.cache.put(forClass, metadata);
+		context.metadataCache.put(forClass, metadata);
 		return metadata;
 	}
 
@@ -137,21 +138,21 @@ public final class MetaDataConfigurator<T> {
 	/**
 	 * Set the binder repository when assigning {@code Binder}s to fields.
 	 * 
-	 * @param binderRepository
+	 * @param repository
 	 *            The binder repository
 	 * 
 	 * @return This metadata configurator instance
 	 */
-	public MetaDataConfigurator<T> setBinderRepository(BinderRepository binderRepository)
+	public MetaDataConfigurator<T> setBinderRepository(IBinderRepository repository)
 	{
-		this.binderRepository = binderRepository;
+		this.binderRepository = repository;
 		return this;
 	}
 
 	/**
 	 * Sets the {@link Binder} to be used for all fields of the the specified
 	 * type. The binder specified here takes precedence over the binder
-	 * specified by the {@link BinderRepository}.
+	 * specified by the {@link IBinderRepository}.
 	 * 
 	 * @param type
 	 *            The class to attach the binder to
@@ -163,7 +164,7 @@ public final class MetaDataConfigurator<T> {
 	public MetaDataConfigurator<T> setBinder(Class<?> type, Binder binder)
 	{
 		if (classBinders == null) {
-			classBinders = new HashMap<Class<?>, Binder>();
+			classBinders = new HashMap<>();
 		}
 		classBinders.put(type, binder);
 		return this;
@@ -184,7 +185,7 @@ public final class MetaDataConfigurator<T> {
 	public MetaDataConfigurator<T> setBinder(String field, Binder binder)
 	{
 		if (fieldBinders == null)
-			fieldBinders = new HashMap<String, Binder>();
+			fieldBinders = new HashMap<>();
 		fieldBinders.put(field, binder);
 		return this;
 	}
@@ -194,9 +195,8 @@ public final class MetaDataConfigurator<T> {
 		for (Field f : getAllFields(forClass)) {
 			String colName = mappingAlgorithm.mapFieldToColumnName(f, forClass);
 			if (colName != null && colName.equals(column)) {
-				if (!f.isAccessible()) {
+				if (!f.isAccessible())
 					f.setAccessible(true);
-				}
 				return new DataExchangeUnit(f, column, getBinder(f));
 			}
 		}
@@ -233,13 +233,12 @@ public final class MetaDataConfigurator<T> {
 	private DataExchangeUnit[] getDataExchangeUnits()
 	{
 		Column[] columns = entity.getColumns();
-		HashMap<String, Column> columnIndex = new HashMap<String, Column>(
-				(int) (columns.length / .75) + 1);
+		HashMap<String, Column> columnIndex = new HashMap<>((int) (columns.length / .75) + 1);
 		for (Column column : columns) {
 			columnIndex.put(column.getName(), column);
 		}
 
-		ArrayList<DataExchangeUnit> list = new ArrayList<DataExchangeUnit>(columns.length);
+		ArrayList<DataExchangeUnit> list = new ArrayList<>(columns.length);
 
 		for (Field f : getAllFields(forClass)) {
 			String columnName = mappingAlgorithm.mapFieldToColumnName(f, forClass);
@@ -261,31 +260,28 @@ public final class MetaDataConfigurator<T> {
 		return result;
 	}
 
-	// private String getColumnName(Field forField)
-	// {
-	// return mappingAlgorithm.mapFieldToColumnName(forField, forClass);
-	// }
-
 	private Binder getBinder(Field field)
 	{
 		String name = field.getName();
 		if (fieldBinders != null && fieldBinders.containsKey(name)) {
 			return fieldBinders.get(name);
 		}
-		Class<?> fieldType = field.getType();
+		Class<?> type = field.getType();
 		if (classBinders != null && classBinders.containsKey(name)) {
 			return classBinders.get(name);
 		}
-		if (binderRepository != null) {
-			return binderRepository.getBinder(fieldType);
+		if (binderRepository == null) {
+			binderRepository = DefaultBinderRepository.getSharedInstance();
 		}
-		throw new MetaDataAssemblyException(
-				"Cannot assign a Binders without BinderRepository and custom Binders");
+		Binder binder = binderRepository.getBinder(type);
+		if (binder == null)
+			throw new MissingBinderException(field);
+		return binder;
 	}
 
 	private static List<Field> getAllFields(Class<?> forClass)
 	{
-		List<Field> fields = new ArrayList<Field>();
+		List<Field> fields = new ArrayList<>();
 		while (forClass != Object.class) {
 			fields.addAll(Arrays.asList(forClass.getDeclaredFields()));
 			forClass = forClass.getSuperclass();

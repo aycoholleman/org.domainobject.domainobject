@@ -11,7 +11,7 @@ import org.domainobject.orm.core.MetaDataConfigurator;
  * @see Binder
  * @see MetaDataConfigurator#setBinderRepository(BinderRepository)
  */
-public interface BinderRepository {
+public interface IBinderRepository {
 
 	Binder getBinder(Class<?> forClass);
 

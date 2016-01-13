@@ -23,8 +23,8 @@ import org.domainobject.orm.core.MetaDataConfigurator;
  * In general, binders are there for the following reasons:
  * <ol>
  * <li>
- * In cases where JDBC's type mapping system does not work. For
- * example, you cannot simply set a {@code StringBuilder} field using
+ * In cases where JDBC's type mapping system does not work. For example, you
+ * cannot simply set a {@code StringBuilder} field using
  * {@code ResultSet#getString(int) ResultSet.getString}:
  * {@code StringBuilder sb = rs.getString(1)} will not work!</li>
  * <li>
@@ -58,7 +58,6 @@ public interface Binder {
 	 */
 	boolean isSQLNull(Object value, Column column);
 
-
 	/**
 	 * Transfer the specified value to the specified {@code PreparedStatement}.
 	 * 
@@ -74,8 +73,8 @@ public interface Binder {
 	 *             Any exception thrown while transferring. Implementations
 	 *             should generally just rethrow the exception.
 	 */
-	public void send(Object value, Column column, PreparedStatement ps, int parameterIndex) throws Exception;
-
+	public void send(Object value, Column column, PreparedStatement ps, int parameterIndex)
+			throws Exception;
 
 	/**
 	 * Transfer a value from the {@code ResultSet} to the caller of this method.
