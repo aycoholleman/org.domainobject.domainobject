@@ -1,4 +1,4 @@
-package org.domainobject.orm.mapping;
+package org.domainobject.orm.map;
 
 import org.domainobject.orm.core.Entity;
 

@@ -15,7 +15,7 @@ import org.domainobject.orm.bind.BinderRepository;
 import org.domainobject.orm.core.Entity.Type;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
-import org.domainobject.orm.mapping.MappingAlgorithm;
+import org.domainobject.orm.map.MappingAlgorithm;
 
 /**
  * <p>

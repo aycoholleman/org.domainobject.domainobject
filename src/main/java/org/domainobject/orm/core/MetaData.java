@@ -11,7 +11,7 @@ import org.domainobject.orm.exception.DomainObjectException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.exception.UnmappedColumnException;
 import org.domainobject.orm.exception.UnmappedFieldException;
-import org.domainobject.orm.mapping.MappingAlgorithm;
+import org.domainobject.orm.map.MappingAlgorithm;
 import org.domainobject.orm.persister.StandardPersister;
 import org.domainobject.orm.util.Util;
 import org.domainobject.util.ArrayUtil;

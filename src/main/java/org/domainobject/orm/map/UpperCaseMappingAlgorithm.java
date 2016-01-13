@@ -1,4 +1,4 @@
-package org.domainobject.orm.mapping;
+package org.domainobject.orm.map;
 
 public class UpperCaseMappingAlgorithm extends BasicMappingAlgorithm {
 

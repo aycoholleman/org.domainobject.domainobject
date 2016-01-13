@@ -1,4 +1,4 @@
-package org.domainobject.orm.mapping;
+package org.domainobject.orm.map;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
