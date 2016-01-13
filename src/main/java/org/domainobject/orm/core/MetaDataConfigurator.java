@@ -15,7 +15,7 @@ import org.domainobject.orm.bind.BinderRepository;
 import org.domainobject.orm.core.Entity.Type;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
-import org.domainobject.orm.map.MappingAlgorithm;
+import org.domainobject.orm.map.IMappingAlgorithm;
 
 /**
  * <p>
@@ -56,7 +56,7 @@ public final class MetaDataConfigurator<T> {
 
 	private Connection connection;
 	private BinderRepository binderRepository;
-	private MappingAlgorithm mappingAlgorithm;
+	private IMappingAlgorithm mappingAlgorithm;
 
 	private Entity entity;
 	private String entityName;
@@ -227,7 +227,7 @@ public final class MetaDataConfigurator<T> {
 	 * 
 	 * @return This metadata configurator instance
 	 */
-	public MetaDataConfigurator<T> setMappingAlgorithm(MappingAlgorithm mappingAlgorithm)
+	public MetaDataConfigurator<T> setMappingAlgorithm(IMappingAlgorithm mappingAlgorithm)
 	{
 		if (invalid) {
 			throw new IllegalAccessError(ERR_ALREADY_CREATED);

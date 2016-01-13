@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 
-public class BasicMappingAlgorithm implements MappingAlgorithm {
+public class BasicMappingAlgorithm implements IMappingAlgorithm {
 
 	public String mapClassToEntityName(Class<?> cls)
 	{

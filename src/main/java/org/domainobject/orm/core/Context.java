@@ -12,7 +12,7 @@ import org.domainobject.orm.bind.StandardBinderRepository;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.map.LowerCaseMappingAlgorithm;
-import org.domainobject.orm.map.MappingAlgorithm;
+import org.domainobject.orm.map.IMappingAlgorithm;
 import org.domainobject.util.debug.BeanPrinter;
 
 /**
@@ -67,7 +67,7 @@ public final class Context {
 	final Map<Class<?>, MetaData<?>> cache = new HashMap<Class<?>, MetaData<?>>();
 
 	final Connection connection;
-	final MappingAlgorithm mappingAlgorithm;
+	final IMappingAlgorithm mappingAlgorithm;
 	final BinderRepository binderRepository;
 
 	private String dbVendor;
@@ -81,7 +81,7 @@ public final class Context {
 	 * columns, and binders for exchanging data between them are going to be
 	 * sourced from a share instance of {@link StandardBinderRepository}.
 	 * 
-	 * @see MappingAlgorithm
+	 * @see IMappingAlgorithm
 	 * @see Binder
 	 * @see BinderRepository
 	 * @see StandardBinderRepository#getSharedInstance()
@@ -101,7 +101,7 @@ public final class Context {
 	 * going to be sourced from a share instance of
 	 * {@link StandardBinderRepository}
 	 * 
-	 * @see MappingAlgorithm
+	 * @see IMappingAlgorithm
 	 * @see Binder
 	 * @see BinderRepository
 	 * @see StandardBinderRepository#getSharedInstance()
@@ -111,7 +111,7 @@ public final class Context {
 	 * @param ma
 	 *            The mapping algorithm
 	 */
-	public Context(Connection conn, MappingAlgorithm ma)
+	public Context(Connection conn, IMappingAlgorithm ma)
 	{
 		this(conn, ma, null);
 	}
@@ -137,7 +137,7 @@ public final class Context {
 	 * Create a metadata factory with the specified JDBC connection, mapping
 	 * algorithm and binder repository.
 	 * 
-	 * @see MappingAlgorithm
+	 * @see IMappingAlgorithm
 	 * @see Binder
 	 * @see BinderRepository
 	 * 
@@ -148,7 +148,7 @@ public final class Context {
 	 * @param br
 	 *            The binder repository
 	 */
-	public Context(Connection conn, MappingAlgorithm ma, BinderRepository br)
+	public Context(Connection conn, IMappingAlgorithm ma, BinderRepository br)
 	{
 		this.connection = conn;
 		setDatabaseInfo();

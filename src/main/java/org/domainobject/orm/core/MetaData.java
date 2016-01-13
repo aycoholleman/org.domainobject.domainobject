@@ -11,7 +11,7 @@ import org.domainobject.orm.exception.DomainObjectException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.exception.UnmappedColumnException;
 import org.domainobject.orm.exception.UnmappedFieldException;
-import org.domainobject.orm.map.MappingAlgorithm;
+import org.domainobject.orm.map.IMappingAlgorithm;
 import org.domainobject.orm.persister.StandardPersister;
 import org.domainobject.orm.util.Util;
 import org.domainobject.util.ArrayUtil;
@@ -280,7 +280,7 @@ public final class MetaData<T> {
 	 * cached, so you don't need to cache it yourself.
 	 * 
 	 * 
-	 * @see MetaDataConfigurator#setMappingAlgorithm(MappingAlgorithm)
+	 * @see MetaDataConfigurator#setMappingAlgorithm(IMappingAlgorithm)
 	 * @see MetaDataConfigurator#setCustomMapping(String, String)
 	 * 
 	 * @return All {@code Column}s that are mapped to a {@code Field}.

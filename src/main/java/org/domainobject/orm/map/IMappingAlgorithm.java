@@ -3,7 +3,7 @@ package org.domainobject.orm.map;
 
 import java.lang.reflect.Field;
 
-public interface MappingAlgorithm {
+public interface IMappingAlgorithm {
 
 	String mapClassToEntityName(Class<?> cls);
 
