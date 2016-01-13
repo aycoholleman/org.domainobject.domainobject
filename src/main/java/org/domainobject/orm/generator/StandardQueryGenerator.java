@@ -13,7 +13,6 @@ import org.domainobject.orm.core.MetaData;
 import org.domainobject.orm.core.Query;
 import org.domainobject.orm.core.QuerySpec;
 import org.domainobject.orm.exception.DomainObjectException;
-import org.domainobject.orm.exception.ReflectionException;
 import org.domainobject.orm.exception.SQLGenerationException;
 import org.domainobject.orm.util.SQLString;
 import org.domainobject.orm.util.Util;
@@ -26,8 +25,7 @@ import org.domainobject.util.convert.Stringifier;
  */
 public class StandardQueryGenerator {
 
-	private static final HashMap<Context, StandardQueryGenerator> impls = new HashMap<Context, StandardQueryGenerator>(
-			4);
+	private static final HashMap<Context, StandardQueryGenerator> impls = new HashMap<>(4);
 
 	private static final Stringifier PARAMETER_GENERATOR = new Stringifier() {
 
@@ -40,47 +38,50 @@ public class StandardQueryGenerator {
 	public static StandardQueryGenerator getGenerator(Context ctx)
 	{
 
-		StandardQueryGenerator sqg = impls.get(ctx);
+		// TODO move to ObjectFactory
+		return null;
 
-		if (sqg == null) {
-
-			Class<StandardQueryGenerator> base = StandardQueryGenerator.class;
-
-			String match0 = base.getName();
-			String match1 = new StringBuilder(95).append(match0).append("__")
-					.append(ctx.getDatabaseVendor()).toString();
-			String match2 = new StringBuilder(95).append(match1).append('_')
-					.append(ctx.getDatabaseMajorVersion()).toString();
-			String match3 = new StringBuilder(95).append(match2).append('_')
-					.append(ctx.getDatabaseMinorVersion()).toString();
-
-			Class<?> cls;
-
-			try {
-				cls = Class.forName(match3);
-			}
-			catch (ClassNotFoundException e3) {
-				try {
-					cls = Class.forName(match2);
-				}
-				catch (ClassNotFoundException e2) {
-					try {
-						cls = Class.forName(match1);
-					}
-					catch (ClassNotFoundException e1) {
-						cls = base;
-					}
-				}
-			}
-			try {
-				sqg = (StandardQueryGenerator) cls.newInstance();
-				impls.put(ctx, sqg);
-			}
-			catch (Exception e) {
-				throw new ReflectionException(e);
-			}
-		}
-		return sqg;
+		// StandardQueryGenerator sqg = impls.get(ctx);
+		//
+		// if (sqg == null) {
+		//
+		// Class<StandardQueryGenerator> base = StandardQueryGenerator.class;
+		//
+		// String match0 = base.getName();
+		// String match1 = new StringBuilder(95).append(match0).append("__")
+		// .append(ctx.getDatabaseVendor()).toString();
+		// String match2 = new StringBuilder(95).append(match1).append('_')
+		// .append(ctx.getDatabaseMajorVersion()).toString();
+		// String match3 = new StringBuilder(95).append(match2).append('_')
+		// .append(ctx.getDatabaseMinorVersion()).toString();
+		//
+		// Class<?> cls;
+		//
+		// try {
+		// cls = Class.forName(match3);
+		// }
+		// catch (ClassNotFoundException e3) {
+		// try {
+		// cls = Class.forName(match2);
+		// }
+		// catch (ClassNotFoundException e2) {
+		// try {
+		// cls = Class.forName(match1);
+		// }
+		// catch (ClassNotFoundException e1) {
+		// cls = base;
+		// }
+		// }
+		// }
+		// try {
+		// sqg = (StandardQueryGenerator) cls.newInstance();
+		// impls.put(ctx, sqg);
+		// }
+		// catch (Exception e) {
+		// throw new ReflectionException(e);
+		// }
+		// }
+		// return sqg;
 	}
 
 	public <T> Query<T> sqlQuery(MetaData<T> metadata, QuerySpec qs)

@@ -117,6 +117,15 @@ import org.domainobject.orm.util.Util;
  * both have a "name" field, then
  * 
  * <pre>
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * Condition condition = new Condition(&quot;name&quot;, LIKE, &quot;%ab%&quot;);
  * </pre>
  * 
@@ -134,7 +143,7 @@ public final class Condition {
 	// of a class containing the field specified by the condition. The value
 	// will then be retrieved from that instance.
 	static final Object NOT_SET = new Object();
-	
+
 	/**
 	 * SQL Operator <code>=</code>
 	 */
@@ -202,10 +211,9 @@ public final class Condition {
 	 */
 	public static final String NOT_BETWEEN = "NOT BETWEEN";
 
-	private static enum Conjugator
-	{
+	private static enum Conjugator {
 		NONE, AND, OR
-	};
+	}
 
 	// The initial capacity of the siblings list
 	private static final int INIT_NUM_SIBLINGS = 4;
@@ -218,7 +226,6 @@ public final class Condition {
 	private final Condition createdFrom;
 	private ArrayList<Condition> siblings;
 
-
 	/**
 	 * Create a condition for the specified field.
 	 * 
@@ -230,7 +237,6 @@ public final class Condition {
 	{
 		this(Conjugator.NONE, field, EQUALS, NOT_SET, false);
 	}
-
 
 	/**
 	 * Create a condition for the specified field and operator.
@@ -245,7 +251,6 @@ public final class Condition {
 	{
 		this(Conjugator.NONE, field, operator, NOT_SET, true);
 	}
-
 
 	/**
 	 * Create a condition for the specified field, operator and value.
@@ -265,7 +270,6 @@ public final class Condition {
 		this(Conjugator.NONE, field, operator, value, true);
 	}
 
-
 	private Condition(Conjugator conjugator, Condition other)
 	{
 		this.createdFrom = other;
@@ -275,7 +279,6 @@ public final class Condition {
 		this.value = other.value;
 		this.siblings = other.siblings;
 	}
-
 
 	/**
 	 * Internally used constructor for the and() and or() methods.
@@ -292,7 +295,8 @@ public final class Condition {
 	 * @param isUserSuppliedOperator
 	 *            Whether or not to normalize and check the comparison operator.
 	 */
-	private Condition(Conjugator conjugator, String property, String operator, Object value, boolean isUserSuppliedOperator)
+	private Condition(Conjugator conjugator, String property, String operator, Object value,
+			boolean isUserSuppliedOperator)
 	{
 		this.createdFrom = null;
 		this.conjugator = conjugator;
@@ -304,7 +308,6 @@ public final class Condition {
 		}
 	}
 
-
 	/**
 	 * Add a sibling Condition to this Condition using the AND operator. Watch
 	 * out for circular conditions. For example:
@@ -313,7 +316,8 @@ public final class Condition {
 	 * Condition condition1 = new Condition(&quot;name&quot;, EQUALS, &quot;Smith&quot;);
 	 * Condition condition2 = new Condition(&quot;age&quot;, LESS_THAN, 40);
 	 * condition1.and(condition2); // OK
-	 * condition2.and(condition1); // Illegal! condition2 already a sibling of condition1
+	 * condition2.and(condition1); // Illegal! condition2 already a sibling of
+	 * // condition1
 	 * </pre>
 	 * 
 	 * @param condition
@@ -329,7 +333,7 @@ public final class Condition {
 	public Condition and(Condition condition)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		if (condition.siblings != null) {
 			for (Condition c0 : condition.siblings) {
@@ -340,8 +344,10 @@ public final class Condition {
 				}
 			}
 		}
-		// We do not add the specified condition directly to the list of siblings!
-		// Instead we clone it and add the clone to the list of siblings. This is
+		// We do not add the specified condition directly to the list of
+		// siblings!
+		// Instead we clone it and add the clone to the list of siblings. This
+		// is
 		// because the conjugator (AND or OR) of a Condition is immutable.
 		// So we can't do:
 		//
@@ -349,17 +355,19 @@ public final class Condition {
 		// siblings.add(condition);
 		//
 		// We do keep a reference though to the original Condition in the cloned
-		// Condition through the createdFrom field. This is so we can detect circular
+		// Condition through the createdFrom field. This is so we can detect
+		// circular
 		// conditions.
 		//
-		// If the conjugator would not be immutable, you could not add one condition
-		// to more than one parent condition; if you could modify the condition's
+		// If the conjugator would not be immutable, you could not add one
+		// condition
+		// to more than one parent condition; if you could modify the
+		// condition's
 		// conjugator (e.g. from AND to OR), you would change it for all parent
 		// conditions to which this condition was added.
 		siblings.add(new Condition(Conjugator.AND, condition));
 		return this;
 	}
-
 
 	/**
 	 * Add a sibling Condition to this Condition using the OR operator.
@@ -378,7 +386,7 @@ public final class Condition {
 	public Condition or(Condition condition)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		if (condition.siblings != null) {
 			for (Condition c0 : condition.siblings) {
@@ -393,7 +401,6 @@ public final class Condition {
 		return this;
 	}
 
-
 	/**
 	 * Add a sibling Condition to this Condition using the AND operator. The
 	 * sibling Condition is created from the specified field. See
@@ -407,12 +414,11 @@ public final class Condition {
 	public Condition and(String field)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		siblings.add(new Condition(Conjugator.AND, field, EQUALS, NOT_SET, false));
 		return this;
 	}
-
 
 	/**
 	 * Add a sibling Condition to this Condition using the OR operator. The
@@ -427,12 +433,11 @@ public final class Condition {
 	public Condition or(String field)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		siblings.add(new Condition(Conjugator.OR, field, EQUALS, NOT_SET, false));
 		return this;
 	}
-
 
 	/**
 	 * Add a sibling condition to this {@code Condition} using the AND operator.
@@ -450,12 +455,11 @@ public final class Condition {
 	public Condition and(String field, String operator)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		siblings.add(new Condition(Conjugator.AND, field, operator, NOT_SET, true));
 		return this;
 	}
-
 
 	/**
 	 * Add a sibling Condition to this Condition using the OR operator. The
@@ -473,12 +477,11 @@ public final class Condition {
 	public Condition or(String field, String operator)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		siblings.add(new Condition(Conjugator.OR, field, operator, NOT_SET, true));
 		return this;
 	}
-
 
 	/**
 	 * Add a sibling Condition to this Condition using the AND operator. The
@@ -499,12 +502,11 @@ public final class Condition {
 	public Condition and(String field, String operator, Object value)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		siblings.add(new Condition(Conjugator.AND, field, operator, value, true));
 		return this;
 	}
-
 
 	/**
 	 * Add a sibling Condition to this Condition using the OR operator. The
@@ -525,12 +527,11 @@ public final class Condition {
 	public Condition or(String field, String operator, Object value)
 	{
 		if (siblings == null) {
-			siblings = new ArrayList<Condition>(INIT_NUM_SIBLINGS);
+			siblings = new ArrayList<>(INIT_NUM_SIBLINGS);
 		}
 		siblings.add(new Condition(Conjugator.OR, field, operator, value, true));
 		return this;
 	}
-
 
 	/**
 	 * Get the name of the field for which this {@code Condition} was made.
@@ -541,7 +542,6 @@ public final class Condition {
 	{
 		return field;
 	}
-
 
 	/**
 	 * Get the comparison operator used in this Condition. If no operator was
@@ -555,7 +555,6 @@ public final class Condition {
 		return operator;
 	}
 
-
 	/**
 	 * Get the constraining value in this Condition. If no value was specified
 	 * (i.e. if the one- or two-arguments constructor was used), the value will
@@ -568,7 +567,6 @@ public final class Condition {
 		return value;
 	}
 
-
 	/**
 	 * Get the sibling {@code Condition}s of this {@code Condition}.
 	 * 
@@ -578,7 +576,6 @@ public final class Condition {
 	{
 		return siblings;
 	}
-
 
 	/**
 	 * Get the SQL parameter name that is going to be used for this
@@ -614,7 +611,6 @@ public final class Condition {
 		//@formatter:on
 	}
 
-
 	/**
 	 * Two {@code Condition}s are equal if they have the same field, operator
 	 * and siblings {@code Condition}s, and if these siblings are conjugated
@@ -649,7 +645,6 @@ public final class Condition {
 		return this.siblings.equals(other.siblings);
 	}
 
-
 	/**
 	 * Overrides {@link Object#hashCode()} to reflect the peculiarities of
 	 * establishing {@code Condition} equality. See {@link #equals(Object)}.
@@ -666,7 +661,6 @@ public final class Condition {
 		}
 		return hash;
 	}
-
 
 	@Override
 	public String toString()
@@ -691,7 +685,6 @@ public final class Condition {
 		return sb.toString();
 	}
 
-
 	/**
 	 * Translates this {@code Condition} and its siblings into raw SQL.
 	 */
@@ -700,7 +693,6 @@ public final class Condition {
 		return resolve(new StringBuilder(32), metadata, tableAlias).toString();
 	}
 
-
 	/**
 	 * Translates this {@code Condition} into raw SQL.
 	 */
@@ -708,7 +700,6 @@ public final class Condition {
 	{
 		return resolveSelf(new StringBuilder(32), metadata, tableAlias).toString();
 	}
-
 
 	private static String normalizeOperator(String string)
 	{
@@ -757,7 +748,6 @@ public final class Condition {
 		throw new InvalidConditionException("Invalid operator: " + string);
 	}
 
-
 	private static boolean equals(Object obj1, Object obj2)
 	{
 		if (obj1 == null) {
@@ -766,8 +756,8 @@ public final class Condition {
 		return obj2 == null ? false : obj1.equals(obj2);
 	}
 
-
-	private <T> StringBuilder resolve(final StringBuilder sql, final MetaData<T> metadata, final String tableAlias)
+	private <T> StringBuilder resolve(final StringBuilder sql, final MetaData<T> metadata,
+			final String tableAlias)
 	{
 
 		if (siblings == null) {
@@ -790,10 +780,10 @@ public final class Condition {
 		return sql;
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	///  NB: The logic of this method MUST exactly mirror Query#bind(Object, Condition[]) !!!  ///
-	//////////////////////////////////////////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////////////////////////////////
+	// / NB: The logic of this method MUST exactly mirror Query#bind(Object,
+	// Condition[]) !!! ///
+	// ////////////////////////////////////////////////////////////////////////////////////////////
 	private <T> StringBuilder resolveSelf(StringBuilder sql, MetaData<T> metadata, String tableAlias)
 	{
 
@@ -825,7 +815,8 @@ public final class Condition {
 		}
 
 		else if (value == null) {
-			// Translate "= null" into "IS NULL" and "!= null" into "IS NOT NULL".
+			// Translate "= null" into "IS NULL" and "!= null" into
+			// "IS NOT NULL".
 			if (operator == EQUALS) {
 				sql.append(' ').append(IS_NULL);
 			}
@@ -842,55 +833,64 @@ public final class Condition {
 
 		return sql;
 	}
-	
+
 	private void checkCondition()
 	{
 		if (operator == IS_NULL || operator == IS_NOT_NULL) {
 			if (value != NOT_SET) {
-				throw new InvalidConditionException("Value must not be set when using IS NULL or IS NOT NULL (use the two-argument constructor of Condition)");
+				throw new InvalidConditionException(
+						"Value must not be set when using IS NULL or IS NOT NULL (use the two-argument constructor of Condition)");
 			}
 		}
 		else if (operator == IN || operator == NOT_IN) {
 			if (value == NOT_SET) {
-				throw new InvalidConditionException("You must specify a value when using IN or NOT IN (use the three-argument constructor of Condition)");
+				throw new InvalidConditionException(
+						"You must specify a value when using IN or NOT IN (use the three-argument constructor of Condition)");
 			}
 			if (value == null) {
-				throw new InvalidConditionException("You must specify a non-null value when using IN or NOT IN");
+				throw new InvalidConditionException(
+						"You must specify a non-null value when using IN or NOT IN");
 			}
 			if (value instanceof Object[]) {
 				Object[] array = (Object[]) value;
 				if (array.length == 0) {
-					throw new InvalidConditionException("Array must contain at least one element when using IN or NOT IN");
+					throw new InvalidConditionException(
+							"Array must contain at least one element when using IN or NOT IN");
 				}
 				for (Object obj : array) {
 					if (obj == null) {
-						throw new InvalidConditionException("Array may not contain null values when using IN or NOT IN");
+						throw new InvalidConditionException(
+								"Array may not contain null values when using IN or NOT IN");
 					}
 				}
 			}
 		}
 		else if (operator == BETWEEN || operator == NOT_BETWEEN) {
 			if (value == NOT_SET) {
-				throw new InvalidConditionException("You must specify a value when using BETWEEN or NOT BETWEEN (use the three-argument constructor of Condition)");
+				throw new InvalidConditionException(
+						"You must specify a value when using BETWEEN or NOT BETWEEN (use the three-argument constructor of Condition)");
 			}
 			if (!(value instanceof Object[])) {
-				throw new InvalidConditionException("You must specify a 2-element array when using BETWEEN or NOT BETWEEN");
+				throw new InvalidConditionException(
+						"You must specify a 2-element array when using BETWEEN or NOT BETWEEN");
 			}
 			Object[] array = (Object[]) value;
 			if (array.length != 2) {
-				throw new InvalidConditionException("You must specify a 2-element array when using BETWEEN or NOT BETWEEN");
+				throw new InvalidConditionException(
+						"You must specify a 2-element array when using BETWEEN or NOT BETWEEN");
 			}
 			for (Object obj : array) {
 				if (obj == null) {
-					throw new InvalidConditionException("Array may not contain null values when using BETWEEN or NOT BETWEEN");
+					throw new InvalidConditionException(
+							"Array may not contain null values when using BETWEEN or NOT BETWEEN");
 				}
 			}
 		}
 		else if (value == null && operator != EQUALS && operator != NOT_EQUALS) {
-			throw new InvalidConditionException("Value null only allowed with operator EQUALS or NOT_EQUALS");
+			throw new InvalidConditionException(
+					"Value null only allowed with operator EQUALS or NOT_EQUALS");
 		}
 	}
-
 
 	private StringBuilder selfToString(StringBuilder sb)
 	{
@@ -915,7 +915,6 @@ public final class Condition {
 		sb.append(')');
 		return sb;
 	}
-
 
 	private static String valueToString(Object value)
 	{

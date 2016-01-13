@@ -172,7 +172,7 @@ public final class MetaData<T> {
 
 	private Adaptability adaptability;
 
-	private final HashMap<String, Object> props = new HashMap<String, Object>();
+	private final HashMap<String, Object> props = new HashMap<>();
 
 	MetaData(Class<T> forClass, Entity entity, DataExchangeUnit[] dataExchangeUnits,
 			Context context, MetaDataConfigurator<T> configurator)
@@ -185,9 +185,9 @@ public final class MetaData<T> {
 		this.configurator = configurator;
 
 		int capacity = (int) (dataExchangeUnits.length / .75) + 1;
-		byField = new HashMap<Field, DataExchangeUnit>(capacity);
-		byFieldName = new HashMap<String, DataExchangeUnit>(capacity);
-		byColumnName = new HashMap<String, DataExchangeUnit>(capacity);
+		byField = new HashMap<>(capacity);
+		byFieldName = new HashMap<>(capacity);
+		byColumnName = new HashMap<>(capacity);
 
 		createPermutations();
 
@@ -484,7 +484,7 @@ public final class MetaData<T> {
 	{
 		if (attributeColumns == null) {
 			String[] mappedColumnNames = getMappedColumnNames();
-			Collection<String> collection = new ArrayList<String>(Arrays.asList(mappedColumnNames));
+			Collection<String> collection = new ArrayList<>(Arrays.asList(mappedColumnNames));
 			collection.removeAll(Arrays.asList(getPrimaryKeyColumnNames()));
 			attributeColumns = collection.toArray(new String[collection.size()]);
 		}
@@ -521,7 +521,7 @@ public final class MetaData<T> {
 	public Field[] getAttributeFields()
 	{
 		if (attributeFields == null) {
-			Collection<Field> collection = new ArrayList<Field>(Arrays.asList(getMappedFields()));
+			Collection<Field> collection = new ArrayList<>(Arrays.asList(getMappedFields()));
 			collection.removeAll(Arrays.asList(getPrimaryKeyFields()));
 			attributeFields = collection.toArray(new Field[collection.size()]);
 		}
@@ -551,7 +551,7 @@ public final class MetaData<T> {
 		return attributeFieldNames;
 	}
 
-	private HashMap<MetaData<?>, String[]> parents = new HashMap<MetaData<?>, String[]>();
+	private HashMap<MetaData<?>, String[]> parents = new HashMap<>();
 
 	/**
 	 * Specify a relational parent and the field(s) constituting the foreign key

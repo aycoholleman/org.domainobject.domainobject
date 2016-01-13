@@ -47,16 +47,16 @@ import org.domainobject.orm.util.Util;
  * {@link #close()}. A few methods, like {@link #insert(Object) insert} even go
  * through an entire bind-execute-close cycle.
  */
-public final class Query<T> {
+public class Query<T> {
 
 	private static final int INIT_QUERY_POOL_SIZE = 4;
 	private static final String MSG_QUERY_CLOSED = "Operation not allowed on closed or non-initialized Query";
 
 	private static final class CacheKey {
+
 		private final Object generator;
 		private final String queryId;
 		private final Object[] queryVars;
-
 
 		private CacheKey(Object generator, String queryId, Object[] queryVars)
 		{
@@ -65,16 +65,15 @@ public final class Query<T> {
 			this.queryVars = queryVars;
 		}
 
-
 		public boolean equals(Object obj)
 		{
 			if (this == obj) {
 				return true;
 			}
 			CacheKey other = (CacheKey) obj;
-			return queryId.equals(other.queryId) && Arrays.deepEquals(queryVars, other.queryVars) && generator.equals(other.generator);
+			return queryId.equals(other.queryId) && Arrays.deepEquals(queryVars, other.queryVars)
+					&& generator.equals(other.generator);
 		}
-
 
 		public int hashCode()
 		{
@@ -88,8 +87,8 @@ public final class Query<T> {
 	}
 
 	private static final class QueryPool extends ArrayList<Query<?>> {
-		private static final long serialVersionUID = 1L;
 
+		private static final long serialVersionUID = 1L;
 
 		public QueryPool(int capacity)
 		{
@@ -100,8 +99,7 @@ public final class Query<T> {
 
 	}
 
-	private static final Map<CacheKey, QueryPool> cache = new HashMap<CacheKey, QueryPool>();
-
+	private static final Map<CacheKey, QueryPool> cache = new HashMap<>();
 
 	static void clearCache()
 	{
@@ -117,7 +115,6 @@ public final class Query<T> {
 		}
 		cache.clear();
 	}
-
 
 	static int clearCache(Context context)
 	{
@@ -144,7 +141,6 @@ public final class Query<T> {
 		}
 		return cache.size();
 	}
-
 
 	/**
 	 * <p>
@@ -254,7 +250,7 @@ public final class Query<T> {
 			Query<U> result = (Query<U>) pool.iterator().next().createCopy();
 			return result;
 		}
-		return new Query<U>(key);
+		return new Query<>(key);
 	}
 
 	private final CacheKey cacheKey;
@@ -269,12 +265,10 @@ public final class Query<T> {
 	private boolean initialized = false;
 	private boolean closed = true;
 
-
 	private Query(CacheKey key)
 	{
 		this.cacheKey = key;
 	}
-
 
 	/**
 	 * Whether or not this {@code Query} has already been initialized. This
@@ -291,7 +285,6 @@ public final class Query<T> {
 		return !initialized;
 	}
 
-
 	/**
 	 * Whether or not the {@code Query} has been closed using the
 	 * {@link #close() close} or {@link #destroy() destroy} method.
@@ -302,7 +295,6 @@ public final class Query<T> {
 	{
 		return !closed;
 	}
-
 
 	/**
 	 * Close this {@code Query}. Closing a {@code Query} does in fact not
@@ -324,7 +316,6 @@ public final class Query<T> {
 	{
 		closed = true;
 	}
-
 
 	/**
 	 * Closes this {@code Query} and the {@code PreparedStatement} that it wraps
@@ -350,7 +341,6 @@ public final class Query<T> {
 			}
 		}
 	}
-
 
 	/**
 	 * Initialize this {@code Query} with the specified SQL String and metadata
@@ -379,7 +369,8 @@ public final class Query<T> {
 				// ...
 			}
 			if (keys == null || keys.length == 0) {
-				this.statement = conn.prepareStatement(submittedSQL, Statement.RETURN_GENERATED_KEYS);
+				this.statement = conn.prepareStatement(submittedSQL,
+						Statement.RETURN_GENERATED_KEYS);
 			}
 			else {
 				String[] colNames = new String[keys.length];
@@ -404,7 +395,6 @@ public final class Query<T> {
 		}
 		pool.add(this);
 	}
-
 
 	/**
 	 * Bind the values of the specified fields into the query.
@@ -435,7 +425,6 @@ public final class Query<T> {
 		return this;
 	}
 
-
 	/**
 	 * Bind the values of the specified conditions into the query.
 	 * 
@@ -451,14 +440,13 @@ public final class Query<T> {
 		return bind(null, conditions);
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////
-	//  NB: The logic of this method (regarding when and what to bind) must   //
-	//  exactly mirror Condition#translateSelf() !!! The only difference is   //
-	//  that this method does not trap any errors, because that has already   //
-	//  been done in the constructors and the translate() method of           //
-	//  Condition.                                                            //
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
+	// NB: The logic of this method (regarding when and what to bind) must //
+	// exactly mirror Condition#translateSelf() !!! The only difference is //
+	// that this method does not trap any errors, because that has already //
+	// been done in the constructors and the translate() method of //
+	// Condition. //
+	// //////////////////////////////////////////////////////////////////////////
 	/**
 	 * Bind the values of the specified conditions into the query. If the value
 	 * of a {@code Condition} appears to be {@link Condition#NOT_SET}, then it
@@ -550,12 +538,10 @@ public final class Query<T> {
 
 	}
 
-
 	public void bind(QuerySpec qs)
 	{
 		bind(qs, null);
 	}
-
 
 	public void bind(QuerySpec qs, T object)
 	{
@@ -577,7 +563,6 @@ public final class Query<T> {
 		}
 	}
 
-
 	private void bindParameter(String name, Object value)
 	{
 		List<Integer> positions = queryParams.get(name);
@@ -593,7 +578,6 @@ public final class Query<T> {
 			throw new DomainObjectSQLException(e);
 		}
 	}
-
 
 	public void insert(T object)
 	{
@@ -629,7 +613,6 @@ public final class Query<T> {
 		}
 	}
 
-
 	public int executeUpdate()
 	{
 		if (closed) {
@@ -644,7 +627,6 @@ public final class Query<T> {
 			throw new DomainObjectSQLException(e);
 		}
 	}
-
 
 	public int fetchInt()
 	{
@@ -663,7 +645,6 @@ public final class Query<T> {
 			throw new DomainObjectSQLException(e);
 		}
 	}
-
 
 	/**
 	 * Populate the specified object with the values from the first row coming
@@ -697,7 +678,6 @@ public final class Query<T> {
 		}
 	}
 
-
 	public boolean update(T object)
 	{
 		try {
@@ -712,7 +692,6 @@ public final class Query<T> {
 		}
 	}
 
-
 	/**
 	 * Create a cursor that lets you iterate over the objects created and
 	 * populated from the SELECT query wrapped by this {@code Query} object.
@@ -725,9 +704,8 @@ public final class Query<T> {
 			throw new IllegalStateException(MSG_QUERY_CLOSED);
 		}
 		bind(querySpec);
-		return new Cursor<T>(this, metadata);
+		return new Cursor<>(this, metadata);
 	}
-
 
 	/**
 	 * Get the SQL String with which this {@code Query} was initialized.
@@ -741,7 +719,6 @@ public final class Query<T> {
 		return generatedSQL;
 	}
 
-
 	/**
 	 * Get the SQL String that was submitted to the JDBC layer. In this String
 	 * all named parameters have been replaced by positional parameters (i.e.
@@ -754,16 +731,14 @@ public final class Query<T> {
 		return submittedSQL;
 	}
 
-
 	PreparedStatement getStatement()
 	{
 		return statement;
 	}
 
-
 	private Query<T> createCopy()
 	{
-		Query<T> copy = new Query<T>(cacheKey);
+		Query<T> copy = new Query<>(cacheKey);
 		copy.generatedSQL = this.generatedSQL;
 		copy.submittedSQL = this.submittedSQL;
 		copy.metadata = this.metadata;

@@ -24,27 +24,26 @@ import org.domainobject.util.ArrayUtil;
 
 class StaticEntity implements Entity {
 
-	protected final Connection connection;
-	protected final String name;
-	protected final String schema;
-	protected final Column[] columns;
-
-	public StaticEntity(String name, Connection conn)
+	public static StaticEntity create(Connection conn, String name, String schema)
 	{
-		this.name = name;
-		this.connection = conn;
 		try {
-			this.schema = conn.getCatalog();
+			DatabaseMetaData dbmd = conn.getMetaData();
+			ResultSet rs = dbmd.getTables(schema, null, name, null);
+			if (!rs.next()) {
+				return null;
+			}
+			return new StaticEntity(name, schema, conn);
+
 		}
 		catch (SQLException e) {
 			throw new DomainObjectSQLException(e);
 		}
-		if (this.schema == null) {
-			throw new MetaDataAssemblyException(
-					"Cannot determine schema of entity (java.sql.Connection.getCatalog() returned null)");
-		}
-		this.columns = loadColumns();
 	}
+
+	protected final Connection connection;
+	protected final String name;
+	protected final String schema;
+	protected final Column[] columns;
 
 	public StaticEntity(String name, String schema, Connection conn)
 	{
@@ -108,7 +107,7 @@ class StaticEntity implements Entity {
 			try {
 				DatabaseMetaData dbmd = connection.getMetaData();
 				ResultSet rs = dbmd.getPrimaryKeys(schema, null, name);
-				TreeMap<Short, Column> treeMap = new TreeMap<Short, Column>();
+				TreeMap<Short, Column> treeMap = new TreeMap<>();
 				while (rs.next()) {
 					treeMap.put(rs.getShort(5), findColumn(rs.getString(4)));
 				}
@@ -174,7 +173,7 @@ class StaticEntity implements Entity {
 		return autoIncrementColumn;
 	}
 
-	private final Map<Entity, Column[]> foreignKeys = new HashMap<Entity, Column[]>(4);
+	private final Map<Entity, Column[]> foreignKeys = new HashMap<>(4);
 
 	public Column[] getForeignKeyColumns(Entity parent)
 	{

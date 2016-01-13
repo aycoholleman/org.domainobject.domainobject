@@ -1,18 +1,20 @@
 package org.domainobject.orm.core;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.bind.DefaultBinderRepository;
+import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.bind.IBinderRepository;
 import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
+import org.domainobject.orm.h2.H2ObjectFactory;
 import org.domainobject.orm.map.IMappingAlgorithm;
 import org.domainobject.orm.map.LowerCaseMappingAlgorithm;
+import org.domainobject.orm.mysql.MySQLObjectFactory;
+import org.domainobject.orm.oracle.OracleObjectFactory;
 
 /**
  * <p>
@@ -63,13 +65,11 @@ public final class Context {
 	}
 
 	final Map<Class<?>, MetaData<?>> metadataCache = new HashMap<>();
+	final Map<String, String> namedQueries = new HashMap<>();
 
 	final Connection connection;
-	final IMappingAlgorithm mappingAlgorithm;
-
-	private String dbVendor;
-	private int dbMajorVersion;
-	private int dbMinorVersion;
+	final DatabaseInfo dbInfo;
+	final IObjectFactory objectFactory;
 
 	/**
 	 * Create a metadata factory with the specified JDBC connection. A
@@ -85,55 +85,18 @@ public final class Context {
 	 * @param conn
 	 *            The JDBC connection
 	 */
-	public Context(final Connection conn)
-	{
-		this(conn, null, null);
-	}
-
-	/**
-	 * Create a metadata factory with the specified JDBC connection and mapping
-	 * algorithm. Binders for exchanging data between fields and columns are
-	 * going to be sourced from a share instance of
-	 * {@link DefaultBinderRepository}
-	 * 
-	 * @see IMappingAlgorithm
-	 * @see IBinder
-	 * @see IBinderRepository
-	 * @see DefaultBinderRepository#getSharedInstance()
-	 * 
-	 * @param conn
-	 *            The JDBC connection
-	 * @param ma
-	 *            The mapping algorithm
-	 */
-	public Context(Connection conn, IMappingAlgorithm ma)
-	{
-		this(conn, ma, null);
-	}
-
-	/**
-	 * Create a metadata factory with the specified JDBC connection, mapping
-	 * algorithm and binder repository.
-	 * 
-	 * @see IMappingAlgorithm
-	 * @see IBinder
-	 * @see IBinderRepository
-	 * 
-	 * @param conn
-	 *            The JDBC connection
-	 * @param ma
-	 *            The mapping algorithm
-	 * @param br
-	 *            The binder repository
-	 */
-	public Context(Connection conn, IMappingAlgorithm ma, IBinderRepository br)
+	public Context(Connection conn)
 	{
 		this.connection = conn;
-		setDatabaseInfo();
-		this.mappingAlgorithm = ma == null ? new LowerCaseMappingAlgorithm() : ma;
-		if (defaultContext == null) {
-			defaultContext = this;
-		}
+		dbInfo = DatabaseInfo.create(conn);
+		if (dbInfo.isMySQL())
+			objectFactory = new MySQLObjectFactory();
+		else if (dbInfo.isOracle())
+			objectFactory = new OracleObjectFactory();
+		else
+			// TODO: more vendors
+			objectFactory = new H2ObjectFactory();
+		defaultContext = this;
 	}
 
 	/**
@@ -244,56 +207,9 @@ public final class Context {
 		}
 	}
 
-	public boolean isHSQL()
+	public DatabaseInfo getDatabaseInfo()
 	{
-		return dbVendor.equals("HSQL");
-	}
-
-	public boolean isMySQL()
-	{
-		return dbVendor.equals("MySQL");
-	}
-
-	public boolean isOracle()
-	{
-		return dbVendor.equals("Oracle");
-	}
-
-	public String getDatabaseVendor()
-	{
-		return dbVendor;
-	}
-
-	public float getDatabaseVersion()
-	{
-		return Float.parseFloat(String.valueOf(dbMajorVersion) + '.'
-				+ String.valueOf(dbMinorVersion));
-	}
-
-	public int getDatabaseMajorVersion()
-	{
-		return dbMajorVersion;
-	}
-
-	public int getDatabaseMinorVersion()
-	{
-		return dbMinorVersion;
-	}
-
-	private void setDatabaseInfo()
-	{
-		try {
-			DatabaseMetaData dbmd = connection.getMetaData();
-			dbVendor = dbmd.getDatabaseProductName();
-			if (dbVendor.equals("HSQL Database Engine")) {
-				dbVendor = "HSQL";
-			}
-			dbMajorVersion = dbmd.getDatabaseMajorVersion();
-			dbMinorVersion = dbmd.getDatabaseMinorVersion();
-		}
-		catch (SQLException e) {
-			throw new DomainObjectSQLException(e);
-		}
+		return dbInfo;
 	}
 
 }

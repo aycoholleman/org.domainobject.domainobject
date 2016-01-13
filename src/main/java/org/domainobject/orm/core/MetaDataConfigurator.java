@@ -18,6 +18,7 @@ import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.exception.MissingBinderException;
 import org.domainobject.orm.map.IMappingAlgorithm;
+import org.domainobject.orm.map.PassThruMappingAlgorithm;
 
 /**
  * <p>
@@ -74,7 +75,6 @@ public final class MetaDataConfigurator<T> {
 		this.context = context;
 		this.forClass = forClass;
 		this.connection = context.connection;
-		this.mappingAlgorithm = context.mappingAlgorithm;
 	}
 
 	/**
@@ -97,6 +97,32 @@ public final class MetaDataConfigurator<T> {
 			throw new IllegalAccessError(ERR_ALREADY_CREATED);
 		}
 		invalid = true;
+		if (mappingAlgorithm == null)
+			mappingAlgorithm = new PassThruMappingAlgorithm();
+
+		Connection conn = context.connection;
+		InformationSchema is = context.objectFactory.createInformationSchema(conn);
+
+		String entityName = mappingAlgorithm.mapClassToEntityName(forClass);
+		if (entitySchema == null)
+			entitySchema = is.getCatalog();
+
+		int numEntities = is.countEntities(entityName, entitySchema);
+
+		if (numEntities > 1) {
+			throw new MetaDataAssemblyException("Ambiguous target entity");
+		}
+		else if (numEntities == 1) {
+			Column[] columns = is.getColumns(entityName, entitySchema);
+			DataExchangeUnit[] deus = getDataExchangeUnits(columns);
+		}
+		else {
+			String sql = context.namedQueries.get(entityName);
+			if (sql == null) {
+				throw new MetaDataAssemblyException("Unmappable class");
+			}
+		}
+
 		if (entity == null) {
 			entity = createEntity();
 		}
@@ -216,23 +242,20 @@ public final class MetaDataConfigurator<T> {
 		if (entitySchema == null) {
 			try {
 				entitySchema = connection.getCatalog();
-				if (entitySchema == null) {
-					throw new MetaDataAssemblyException("Cannot establish database schema");
-				}
 			}
 			catch (SQLException e) {
 				throw new DomainObjectSQLException(e);
 			}
 		}
+		StaticEntity entity = StaticEntity.create(connection, entityName, entitySchema);
 		if (entityType == null || entityType == Entity.Type.TABLE) {
 			return new TableEntity(entityName, entitySchema, connection);
 		}
 		return new ViewEntity(entityName, entitySchema, connection);
 	}
 
-	private DataExchangeUnit[] getDataExchangeUnits()
+	private DataExchangeUnit[] getDataExchangeUnits(Column[] columns)
 	{
-		Column[] columns = entity.getColumns();
 		HashMap<String, Column> columnIndex = new HashMap<>((int) (columns.length / .75) + 1);
 		for (Column column : columns) {
 			columnIndex.put(column.getName(), column);
