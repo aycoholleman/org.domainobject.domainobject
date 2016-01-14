@@ -22,23 +22,7 @@ import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.util.ArrayUtil;
 
-class StaticEntity implements Entity {
-
-	public static StaticEntity create(Connection conn, String name, String schema)
-	{
-		try {
-			DatabaseMetaData dbmd = conn.getMetaData();
-			ResultSet rs = dbmd.getTables(schema, null, name, null);
-			if (!rs.next()) {
-				return null;
-			}
-			return new StaticEntity(name, schema, conn);
-
-		}
-		catch (SQLException e) {
-			throw new DomainObjectSQLException(e);
-		}
-	}
+class StaticEntity {
 
 	protected final Connection connection;
 	protected final String name;
@@ -237,7 +221,7 @@ class StaticEntity implements Entity {
 			DatabaseMetaData dbmd = connection.getMetaData();
 			ResultSet rs = dbmd.getColumns(null, null, name, null);
 			while (rs.next()) {
-				list.add(new StaticColumn(this, rs));
+				// list.add(new StaticColumn(this, rs));
 			}
 			return list.toArray(new StaticColumn[list.size()]);
 		}

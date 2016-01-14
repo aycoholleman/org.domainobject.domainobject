@@ -2,7 +2,12 @@ package org.domainobject.orm.core;
 
 import java.sql.Connection;
 
-abstract class AbstractEntity implements Entity {
+class AbstractEntity {
+
+	private String name;
+	private String schema;
+	private Column[] cols;
+	private Column[] pk;
 
 	public String getName()
 	{
@@ -10,13 +15,11 @@ abstract class AbstractEntity implements Entity {
 		return null;
 	}
 
-
 	public String getFrom()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	public Connection getConnection()
 	{
@@ -24,13 +27,11 @@ abstract class AbstractEntity implements Entity {
 		return null;
 	}
 
-
 	public Column[] getColumns()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	public Column[] getPrimaryKeyColumns()
 	{
@@ -38,20 +39,17 @@ abstract class AbstractEntity implements Entity {
 		return null;
 	}
 
-
 	public void setPrimaryKeyColumns(Column[] columns)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
-
 	public Column[] getForeignKeyColumns(Entity parent)
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	public void setForeignKeyColumns(Entity parent, Column[] columns)
 	{

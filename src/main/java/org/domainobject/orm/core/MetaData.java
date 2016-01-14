@@ -1,6 +1,7 @@
 package org.domainobject.orm.core;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -162,9 +163,9 @@ public final class MetaData<T> {
 
 	private final Class<T> forClass;
 	private final Entity entity;
-	private final DataExchangeUnit[] dataExchangeUnits;
+	private DataExchangeUnit[] dataExchangeUnits;
 	private final Context context;
-	private final MetaDataConfigurator<T> configurator;
+	private final MetaDataConfigurator<T> config;
 
 	private final HashMap<Field, DataExchangeUnit> byField;
 	private final HashMap<String, DataExchangeUnit> byFieldName;
@@ -182,7 +183,7 @@ public final class MetaData<T> {
 		this.entity = entity;
 		this.dataExchangeUnits = dataExchangeUnits;
 		this.context = context;
-		this.configurator = configurator;
+		this.config = configurator;
 
 		int capacity = (int) (dataExchangeUnits.length / .75) + 1;
 		byField = new HashMap<>(capacity);
@@ -190,6 +191,32 @@ public final class MetaData<T> {
 		byColumnName = new HashMap<>(capacity);
 
 		createPermutations();
+
+	}
+
+	public void configure()
+	{
+
+		Connection conn = context.connection;
+		InformationSchema is = context.objectFactory.createInformationSchema(conn);
+
+		String entityName = config.getMappingAlgorithm().mapClassToEntityName(forClass);
+		String entitySchema = is.getCatalog();
+
+		int numEntities = is.countEntities(entityName, entitySchema);
+		if (numEntities > 1) {
+			throw new MetaDataAssemblyException("Ambiguous target entity");
+		}
+		else if (numEntities == 1) {
+			Column[] columns = is.getColumns(entityName, entitySchema);
+			dataExchangeUnits = config.getDataExchangeUnits(columns);
+		}
+		else {
+			String sql = context.namedQueries.get(entityName);
+			if (sql == null) {
+				throw new MetaDataAssemblyException("Unmappable class");
+			}
+		}
 
 	}
 
@@ -688,7 +715,7 @@ public final class MetaData<T> {
 
 	MetaDataConfigurator<T> getConfigurator()
 	{
-		return configurator;
+		return config;
 	}
 
 	private void createPermutations()

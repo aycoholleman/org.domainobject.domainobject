@@ -55,15 +55,11 @@ public final class MetaDataConfigurator<T> {
 
 	private final Context context;
 	private final Class<T> forClass;
-	private final Connection connection;
 
 	private IBinderRepository binderRepository;
 	private IMappingAlgorithm mappingAlgorithm;
 
-	private Entity entity;
-	private String entityName;
 	private String entitySchema;
-	private Type entityType;
 
 	private Map<String, IBinder> fieldBinders;
 	private Map<Class<?>, IBinder> classBinders;
@@ -74,7 +70,6 @@ public final class MetaDataConfigurator<T> {
 	{
 		this.context = context;
 		this.forClass = forClass;
-		this.connection = context.connection;
 	}
 
 	/**
@@ -123,11 +118,7 @@ public final class MetaDataConfigurator<T> {
 			}
 		}
 
-		if (entity == null) {
-			entity = createEntity();
-		}
-		MetaData<T> metadata = new MetaData<>(forClass, entity, getDataExchangeUnits(), context,
-				this);
+		MetaData<T> metadata = null;
 		context.metadataCache.put(forClass, metadata);
 		return metadata;
 	}
@@ -159,6 +150,13 @@ public final class MetaDataConfigurator<T> {
 	{
 		this.mappingAlgorithm = mappingAlgorithm;
 		return this;
+	}
+
+	public IMappingAlgorithm getMappingAlgorithm()
+	{
+		if (mappingAlgorithm == null)
+			return new PassThruMappingAlgorithm();
+		return mappingAlgorithm;
 	}
 
 	/**
@@ -229,32 +227,7 @@ public final class MetaDataConfigurator<T> {
 		return null;
 	}
 
-	private Entity createEntity()
-	{
-		if (entityName == null) {
-			if (mappingAlgorithm != null) {
-				entityName = mappingAlgorithm.mapClassToEntityName(forClass);
-			}
-			if (entityName == null) {
-				throw new MetaDataAssemblyException("Cannot establish entity name");
-			}
-		}
-		if (entitySchema == null) {
-			try {
-				entitySchema = connection.getCatalog();
-			}
-			catch (SQLException e) {
-				throw new DomainObjectSQLException(e);
-			}
-		}
-		StaticEntity entity = StaticEntity.create(connection, entityName, entitySchema);
-		if (entityType == null || entityType == Entity.Type.TABLE) {
-			return new TableEntity(entityName, entitySchema, connection);
-		}
-		return new ViewEntity(entityName, entitySchema, connection);
-	}
-
-	private DataExchangeUnit[] getDataExchangeUnits(Column[] columns)
+	DataExchangeUnit[] getDataExchangeUnits(Column[] columns)
 	{
 		HashMap<String, Column> columnIndex = new HashMap<>((int) (columns.length / .75) + 1);
 		for (Column column : columns) {
