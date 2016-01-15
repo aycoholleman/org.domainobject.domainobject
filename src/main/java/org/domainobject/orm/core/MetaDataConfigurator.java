@@ -2,7 +2,6 @@ package org.domainobject.orm.core;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -10,11 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.bind.DefaultBinderRepository;
+import org.domainobject.orm.bind.IBinder;
 import org.domainobject.orm.bind.IBinderRepository;
-import org.domainobject.orm.core.Entity.Type;
-import org.domainobject.orm.exception.DomainObjectSQLException;
 import org.domainobject.orm.exception.MetaDataAssemblyException;
 import org.domainobject.orm.exception.MissingBinderException;
 import org.domainobject.orm.map.IMappingAlgorithm;

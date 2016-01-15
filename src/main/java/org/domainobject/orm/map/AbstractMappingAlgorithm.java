@@ -49,7 +49,7 @@ public abstract class AbstractMappingAlgorithm implements IMappingAlgorithm {
 
 	/**
 	 * Returns whether or not static fields are mapped. By default static fields
-	 * are <i>not</i> mapped.
+	 * are not mapped.
 	 * 
 	 * @return
 	 */
@@ -60,7 +60,7 @@ public abstract class AbstractMappingAlgorithm implements IMappingAlgorithm {
 
 	/**
 	 * Whether or not to map static fields. By default static fields are
-	 * <i>not</i> mapped.
+	 * not mapped.
 	 * 
 	 * @param mapStaticFields
 	 */
@@ -71,7 +71,7 @@ public abstract class AbstractMappingAlgorithm implements IMappingAlgorithm {
 
 	/**
 	 * Returns whether or not transient fields are mapped. By default transient
-	 * fields are <i>not</i> mapped.
+	 * fields are not mapped.
 	 * 
 	 * @return
 	 */
@@ -82,7 +82,7 @@ public abstract class AbstractMappingAlgorithm implements IMappingAlgorithm {
 
 	/**
 	 * Whether or not to map transient fields. By default transient fields are
-	 * <i>not</i> mapped.
+	 * not mapped.
 	 * 
 	 * @param mapTransientFields
 	 */
@@ -93,7 +93,7 @@ public abstract class AbstractMappingAlgorithm implements IMappingAlgorithm {
 
 	/**
 	 * Returns whether or not super class fields are mapped. By default super
-	 * class fields are <i>not</i> mapped.
+	 * class fields are not mapped.
 	 * 
 	 * @return
 	 */
@@ -104,7 +104,7 @@ public abstract class AbstractMappingAlgorithm implements IMappingAlgorithm {
 
 	/**
 	 * Whether or not to map super class fields. By default super class fields
-	 * are <i>not</i> mapped.
+	 * are not mapped.
 	 * 
 	 * @param mapSuperClassFields
 	 */
