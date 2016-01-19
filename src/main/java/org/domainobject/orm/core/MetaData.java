@@ -201,7 +201,10 @@ public final class MetaData<T> {
 		InformationSchema is = context.objectFactory.createInformationSchema(conn);
 
 		String entityName = config.getMappingAlgorithm().mapClassToEntityName(forClass);
-		String entitySchema = is.getCatalog();
+
+		String entitySchema = config.getEntitySchema();
+		if (entitySchema == null)
+			entitySchema = is.getCatalog();
 
 		int numEntities = is.countEntities(entityName, entitySchema);
 		if (numEntities > 1) {

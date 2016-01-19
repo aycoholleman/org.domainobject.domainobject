@@ -1,59 +1,61 @@
 package org.domainobject.orm.core;
 
-import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
 
-class AbstractEntity {
+public class AbstractEntity {
 
 	private String name;
 	private String schema;
-	private Column[] cols;
-	private Column[] pk;
+	private Column[] columns;
+	private Column[] primaryKey;
+	private Map<AbstractEntity, Column[]> parents;
+	private Map<AbstractEntity, Column[]> children;
 
 	public String getName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
-	public String getFrom()
+	public void setName(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		this.name = name;
 	}
 
-	public Connection getConnection()
+	public String getSchema()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return schema;
+	}
+
+	public void setSchema(String schema)
+	{
+		this.schema = schema;
 	}
 
 	public Column[] getColumns()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return columns;
 	}
 
-	public Column[] getPrimaryKeyColumns()
+	public void setColumns(Column[] columns)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		this.columns = columns;
 	}
 
-	public void setPrimaryKeyColumns(Column[] columns)
+	public Column[] getPrimaryKey()
 	{
-		// TODO Auto-generated method stub
-
+		return primaryKey;
 	}
 
-	public Column[] getForeignKeyColumns(Entity parent)
+	public void setPrimaryKey(Column[] primaryKey)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		this.primaryKey = primaryKey;
 	}
 
-	public void setForeignKeyColumns(Entity parent, Column[] columns)
+	public void addParent(AbstractEntity parent, Column[] foreignKey)
 	{
-		// TODO Auto-generated method stub
+		if (parents == null)
+			parents = new HashMap<>();
 
 	}
 
