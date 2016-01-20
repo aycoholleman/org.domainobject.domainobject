@@ -52,7 +52,7 @@ import org.domainobject.orm.util.Util;
  * @see Condition
  * 
  */
-public final class QuerySpec {
+public class QuerySpec {
 
 	/**
 	 * Recommended table alias. If possible, {@link Query} generators should use
