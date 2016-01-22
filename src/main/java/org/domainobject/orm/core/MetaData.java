@@ -204,7 +204,7 @@ public final class MetaData<T> {
 
 		String entitySchema = config.getEntitySchema();
 		if (entitySchema == null)
-			entitySchema = is.getCatalog();
+			entitySchema = is.getDatabaseSchema();
 
 		int numEntities = is.countEntities(entityName, entitySchema);
 		if (numEntities > 1) {

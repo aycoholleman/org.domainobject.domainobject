@@ -46,7 +46,7 @@ import org.domainobject.orm.map.PassThruMappingAlgorithm;
  * 
  * @see Context#getConfigurator(Class)
  */
-public final class MetaDataConfigurator<T> {
+public class MetaDataConfigurator<T> {
 
 	private static final String ERR_ALREADY_CREATED = "You cannot change a MetaDataConfigurator after you have called its createMetaData method";
 
@@ -97,7 +97,7 @@ public final class MetaDataConfigurator<T> {
 
 		String entityName = mappingAlgorithm.mapClassToEntityName(forClass);
 		if (entitySchema == null)
-			entitySchema = is.getCatalog();
+			entitySchema = is.getDatabaseSchema();
 
 		int numEntities = is.countEntities(entityName, entitySchema);
 
@@ -138,6 +138,36 @@ public final class MetaDataConfigurator<T> {
 	{
 		this.entitySchema = schema;
 		return this;
+	}
+
+	AbstractEntity createEntity()
+	{
+		Connection conn = context.connection;
+		InformationSchema is = context.objectFactory.createInformationSchema(conn);
+		String name = getMappingAlgorithm().mapClassToEntityName(forClass);
+		if (entitySchema == null)
+			entitySchema = is.getDatabaseSchema();
+		int numEntities = is.countEntities(name, entitySchema);
+		if (numEntities > 1) {
+			String fmt = "Multiple database entities found with name \"%s\"";
+			String msg;
+			if (entitySchema == null) {
+				msg = String.format(fmt, name);
+			}
+			else {
+				fmt += " and schema \"%s\"";
+				msg = String.format(fmt, name, entitySchema);
+			}
+			throw new MetaDataAssemblyException(msg);
+		}
+		else if (numEntities == 1) {
+			Column[] columns = is.getColumns(name, entitySchema);
+		}
+		AbstractEntity entity = new AbstractEntity();
+		entity.setName(name);
+		entity.setSchema(entitySchema);
+
+		return entity;
 	}
 
 	/**

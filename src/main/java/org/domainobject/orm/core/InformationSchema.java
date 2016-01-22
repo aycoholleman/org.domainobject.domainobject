@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.domainobject.orm.exception.DomainObjectSQLException;
 
@@ -19,7 +18,7 @@ public class InformationSchema {
 		this.conn = conn;
 	}
 
-	public String getCatalog()
+	public String getDatabaseSchema()
 	{
 		try {
 			return conn.getCatalog();
